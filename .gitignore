@@ -1,0 +1,13 @@
+# Data is never committed (raw data may be licensed; see docs/DATA_SOURCES.md)
+data/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Notebooks and OS
+.ipynb_checkpoints/
+.DS_Store
