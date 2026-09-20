@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "numpy",
     "pandas",
+    "pgatourpy",
     "requests",
 ]
 
@@ -15,6 +16,10 @@ dev = [
     "pytest",
     "ruff",
 ]
+
+[tool.uv.sources]
+# Not on PyPI as used here; pinned to the commit the data was built with.
+pgatourpy = { git = "https://github.com/WalrusQuant/pgatourPY.git", rev = "1aba86d23c3ec97502f578af94736db07144afbe" }
 
 [tool.pytest.ini_options]
 # The code lives in src/<area>/ and is imported as `src.<area>`.

@@ -2,7 +2,7 @@
 
 A probabilistic model and Monte Carlo tournament simulator that prices PGA Tour outcomes (win, top-10, make-cut) and tests them honestly against bookmaker odds. Research only; it does not place bets.
 
-**Status:** Phase 0 (foundations and data audit). No model or results yet. See [docs/PLAN.md](docs/PLAN.md) for the phases and checkboxes.
+**Status:** Phase 0 (foundations and data audit), nearly done: 2021-2025 schedules, results and season strokes gained are collected and documented. No model or results yet. See [docs/PLAN.md](docs/PLAN.md) for the phases and checkboxes.
 
 ## Setup
 
@@ -18,3 +18,4 @@ uv run ruff check . && uv run ruff format --check .
 - [docs/PLAN.md](docs/PLAN.md): phases and status
 - [docs/DECISIONS.md](docs/DECISIONS.md): every modelling and design choice
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md): data sources, dates and terms
+- [docs/DATA_STRUCTURE.md](docs/DATA_STRUCTURE.md): data files, columns, joins and quirks
