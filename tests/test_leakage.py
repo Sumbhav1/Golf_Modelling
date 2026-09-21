@@ -49,3 +49,18 @@ def test_changing_a_season_never_changes_its_own_or_earlier_features(changed_yea
                 assert _feature(before, year, column) == pytest.approx(
                     _feature(after, year, column), nan_ok=True
                 )
+
+
+def test_player_features_for_a_new_season_use_only_history():
+    history = _history({2021: 1.0, 2022: 3.0})
+    features = scraper.build_player_features_for_season(history, 2023)
+
+    assert list(features["year"]) == [2023]
+    assert _feature(features, 2023) == pytest.approx(2.0)
+    assert features["sg_total"].isna().all()  # the new season's own SG is never present
+
+
+def test_player_features_refuse_history_that_overlaps_the_season():
+    """A partial season must never feed its own predictions."""
+    with pytest.raises(ValueError, match="before season 2023"):
+        scraper.build_player_features_for_season(_history({2021: 1.0, 2023: 3.0}), 2023)
