@@ -172,9 +172,9 @@ def main() -> None:
             best, evaluation["bootstrap_samples"], evaluation["seed"]
         ).items():
             rows.append({"label": LABEL_NAMES[label], "slice": name, **scores})
-        tables[LABEL_NAMES[label]] = calibration_table(
-            best["y"], best["p"], evaluation["calibration_bins"]
-        )
+        tables[LABEL_NAMES[label]] = {
+            "Baseline 1": calibration_table(best["y"], best["p"], evaluation["calibration_bins"])
+        }
 
     report_dir = Path(evaluation["report_dir"])
     report_dir.mkdir(parents=True, exist_ok=True)

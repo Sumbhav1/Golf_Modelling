@@ -2,6 +2,7 @@
 
 data:
   events_history: data/processed/player_events_2018_2025.csv
+  rounds_history: data/processed/player_rounds_2018_2025.csv
   events_2026: data/processed/player_events_2026.csv
 
 # Seasons are the Tour season labels (see docs/DATA_STRUCTURE.md).
@@ -21,6 +22,23 @@ baseline1:
   # Rolling windows in seasons; 10 is the same as "all earlier seasons" with this much history.
   windows: [3, 5, 10]
   labels: [made_cut, top10, win]
+
+model1:
+  rating:
+    # Grid searched on the validation seasons only (top-10 log loss of the logistic model).
+    long_half_life_days: [180, 365, 730]
+    shrinkage_rounds: [10, 30, 60]
+    # Recent form is the short-window rating minus the long-window rating.
+    short_half_life_days: 60
+  logistic_c: 1.0   # inverse ridge strength on standardised features
+  win_l2: 1.0       # ridge strength for the win softmax
+  top10_normalise: true   # shift probabilities within an event to add up to the top-10 places
+  boosting:
+    max_depth: 3
+    learning_rate: 0.05
+    max_iter: 300
+    min_samples_leaf: 50
+    l2_regularization: 1.0
 
 evaluation:
   bootstrap_samples: 1000

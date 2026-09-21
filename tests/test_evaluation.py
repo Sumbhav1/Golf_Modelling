@@ -89,7 +89,11 @@ def test_plot_calibration_writes_a_png(tmp_path):
     frame = _forecasts()
     table = evaluation.calibration_table(frame["y"], frame["p"], bins=5)
 
-    evaluation.plot_calibration({"A": table, "B": table}, tmp_path / "plot.png", "Title")
+    evaluation.plot_calibration(
+        {"A": {"M1": table, "B1": table}, "B": {"M1": table, "B1": table}},
+        tmp_path / "plot.png",
+        "Title",
+    )
 
     assert (tmp_path / "plot.png").stat().st_size > 1000
 

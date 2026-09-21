@@ -30,7 +30,7 @@ def design_matrix(frame: pd.DataFrame, column: str, center: float) -> np.ndarray
     return np.column_stack([feature, missing.astype(float)])
 
 
-def _event_layout(events: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def event_layout(events: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Row order that groups events together, the start of each event, and its size."""
     order = np.argsort(events, kind="stable")
     sorted_events = events[order]
@@ -39,9 +39,9 @@ def _event_layout(events: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarra
     return order, starts, sizes
 
 
-def _softmax_within_events(scores: np.ndarray, events: np.ndarray) -> np.ndarray:
+def softmax_within_events(scores: np.ndarray, events: np.ndarray) -> np.ndarray:
     """Probabilities that sum to 1 within each event."""
-    order, starts, sizes = _event_layout(events)
+    order, starts, sizes = event_layout(events)
     sorted_scores = scores[order]
     log_total = np.repeat(np.logaddexp.reduceat(sorted_scores, starts), sizes)
     probabilities = np.empty(len(scores))
@@ -49,14 +49,20 @@ def _softmax_within_events(scores: np.ndarray, events: np.ndarray) -> np.ndarray
     return probabilities
 
 
-def _fit_softmax(design: np.ndarray, events: np.ndarray, winner: np.ndarray) -> np.ndarray:
-    """Maximum-likelihood weights for 'the winner is drawn from the field with these scores'."""
-    order, starts, sizes = _event_layout(events)
+def fit_softmax(
+    design: np.ndarray, events: np.ndarray, winner: np.ndarray, l2: float = 0.0
+) -> np.ndarray:
+    """Weights for 'the winner is drawn from the field with these scores' (maximum likelihood).
+
+    `l2` adds a ridge penalty on the weights; use it with standardised features.
+    """
+    order, starts, sizes = event_layout(events)
     design, winner = design[order], winner[order].astype(bool)
 
     def negative_log_likelihood(weights: np.ndarray) -> float:
         scores = design @ weights
-        return float(np.logaddexp.reduceat(scores, starts).sum() - scores[winner].sum())
+        likelihood = np.logaddexp.reduceat(scores, starts).sum() - scores[winner].sum()
+        return float(likelihood + l2 * weights @ weights)
 
     return minimize(negative_log_likelihood, np.zeros(design.shape[1]), method="BFGS").x
 
@@ -72,7 +78,7 @@ class Baseline:
     def predict(self, frame: pd.DataFrame) -> np.ndarray:
         design = design_matrix(frame, self.column, self.center)
         if self.label == WIN_LABEL:
-            return _softmax_within_events(design @ self.weights, frame["tournament_id"].to_numpy())
+            return softmax_within_events(design @ self.weights, frame["tournament_id"].to_numpy())
         return self.logistic.predict_proba(design)[:, 1]
 
 
@@ -82,7 +88,7 @@ def fit_baseline(train: pd.DataFrame, label: str, column: str) -> Baseline:
     design = design_matrix(train, column, center)
     outcome = train[label].astype(int).to_numpy()
     if label == WIN_LABEL:
-        weights = _fit_softmax(design, train["tournament_id"].to_numpy(), outcome)
+        weights = fit_softmax(design, train["tournament_id"].to_numpy(), outcome)
         return Baseline(label, column, center, weights=weights)
     logistic = LogisticRegression(C=np.inf, max_iter=1000).fit(design, outcome)
     return Baseline(label, column, center, logistic=logistic)

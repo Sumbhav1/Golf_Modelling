@@ -2,7 +2,7 @@
 
 A probabilistic model and Monte Carlo tournament simulator that prices PGA Tour outcomes (win, top-10, make-cut) and tests them honestly against bookmaker odds. Research only; it does not place bets.
 
-**Status:** Phase 0 (foundations and data audit), nearly done: 2018-2025 schedules, results and season strokes gained are collected and documented. The 2026 season is kept in separate files for prediction. Tidy player-event and player-round tables with labels are built by `src/ingest/tidy.py`. Baseline 1 (rolling strokes gained to probabilities) beats the naive forecast on the 2023-2024 validation seasons; see [reports/baseline1_validation.md](reports/baseline1_validation.md). The 2025 holdout has not been used. No model or results yet. See [docs/PLAN.md](docs/PLAN.md) for the phases and checkboxes.
+**Status:** Phase 0 (foundations and data audit), nearly done: 2018-2025 schedules, results and season strokes gained are collected and documented. The 2026 season is kept in separate files for prediction. Tidy player-event and player-round tables with labels are built by `src/ingest/tidy.py`. Baseline 1 (rolling strokes gained to probabilities) beats the naive forecast on the 2023-2024 validation seasons ([report](reports/baseline1_validation.md)), and Model 1 (field-adjusted ratings from round scores) beats Baseline 1 on make-cut, top 10 and win ([report](reports/model1_validation.md)). The 2025 holdout has not been used. No model or results yet. See [docs/PLAN.md](docs/PLAN.md) for the phases and checkboxes.
 
 ## Setup
 

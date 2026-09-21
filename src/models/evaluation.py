@@ -101,24 +101,31 @@ def calibration_table(y: Iterable[float], p: Iterable[float], bins: int) -> pd.D
     ).reset_index(drop=True)
 
 
-# Reference palette (validated default): categorical slot 1 on the light chart surface.
+# Reference palette (validated default): categorical slots 1 and 2 on the light chart surface.
 SURFACE = "#fcfcfb"
 INK = "#0b0b0b"
 INK_SECONDARY = "#52514e"
 GRID = "#e4e3df"
-SERIES_BLUE = "#2a78d6"
+SERIES_COLORS = ["#2a78d6", "#eb6834"]  # blue, orange
 
 
-def plot_calibration(tables: dict[str, pd.DataFrame], path: Path | str, title: str) -> None:
-    """One reliability panel per label. A curve on the dashed diagonal is perfectly calibrated."""
+def plot_calibration(
+    tables: dict[str, dict[str, pd.DataFrame]], path: Path | str, title: str
+) -> None:
+    """One reliability panel per label, one curve per model. On the dashed line is calibrated.
+
+    `tables` maps label -> model name -> calibration table. The first model gets the first colour.
+    """
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     fig, axes = plt.subplots(1, len(tables), figsize=(4.2 * len(tables), 4.4), facecolor=SURFACE)
-    for axis, (label, table) in zip(np.atleast_1d(axes), tables.items(), strict=True):
-        top = max(table["mean_predicted"].max(), table["observed_rate"].max()) * 1.08
+    axes = np.atleast_1d(axes)
+    for axis, (label, models) in zip(axes, tables.items(), strict=True):
+        top = max(max(t["mean_predicted"].max(), t["observed_rate"].max()) for t in models.values())
+        top *= 1.08
         axis.set_facecolor(SURFACE)
         axis.plot(
             [0, top],
@@ -128,17 +135,18 @@ def plot_calibration(tables: dict[str, pd.DataFrame], path: Path | str, title: s
             linestyle="--",
             label="Perfect calibration",
         )
-        axis.plot(
-            table["mean_predicted"],
-            table["observed_rate"],
-            color=SERIES_BLUE,
-            linewidth=2,
-            marker="o",
-            markersize=6,
-            markeredgecolor=SURFACE,
-            markeredgewidth=1.5,
-            label="Baseline 1",
-        )
+        for color, (name, table) in zip(SERIES_COLORS, models.items(), strict=False):
+            axis.plot(
+                table["mean_predicted"],
+                table["observed_rate"],
+                color=color,
+                linewidth=2,
+                marker="o",
+                markersize=6,
+                markeredgecolor=SURFACE,
+                markeredgewidth=1.5,
+                label=name,
+            )
         axis.set_xlim(0, top)
         axis.set_ylim(0, top)
         axis.set_aspect("equal", adjustable="box")
@@ -151,9 +159,12 @@ def plot_calibration(tables: dict[str, pd.DataFrame], path: Path | str, title: s
             axis.spines[spine].set_visible(False)
         for spine in ["left", "bottom"]:
             axis.spines[spine].set_color(GRID)
-    np.atleast_1d(axes)[0].set_ylabel("Observed frequency", color=INK_SECONDARY)
-    handles, labels = np.atleast_1d(axes)[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=2, frameon=False, labelcolor=INK_SECONDARY)
+    axes[0].set_ylabel("Observed frequency", color=INK_SECONDARY)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles, labels, loc="lower center", ncol=len(labels), frameon=False,
+        labelcolor=INK_SECONDARY,
+    )  # fmt: skip
     fig.suptitle(title, color=INK, fontsize=13, x=0.02, ha="left")
     fig.tight_layout(rect=(0, 0.1, 1, 0.94))
     Path(path).parent.mkdir(parents=True, exist_ok=True)
