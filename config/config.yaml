@@ -1,0 +1,29 @@
+# Seasons, splits and model parameters. Every reported number must be reproducible from this file.
+
+data:
+  events_history: data/processed/player_events_2018_2025.csv
+  events_2026: data/processed/player_events_2026.csv
+
+# Seasons are the Tour season labels (see docs/DATA_STRUCTURE.md).
+splits:
+  # 2018 has no earlier season to build features from, so training starts in 2019.
+  first_train_season: 2019
+  # Walk-forward: each validation season is predicted by a model trained on all earlier seasons.
+  validation_seasons: [2023, 2024]
+  # Frozen. Used only for final reporting; never tune, select features or set thresholds on it.
+  # Any look must be logged in docs/DECISIONS.md.
+  holdout_seasons: [2025]
+  # In-progress season, kept separate for prediction and forward testing.
+  forward_test_seasons: [2026]
+
+baseline1:
+  feature: sg_total
+  # Rolling windows in seasons; 10 is the same as "all earlier seasons" with this much history.
+  windows: [3, 5, 10]
+  labels: [made_cut, top10, win]
+
+evaluation:
+  bootstrap_samples: 1000
+  seed: 42
+  calibration_bins: 10
+  report_dir: reports

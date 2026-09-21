@@ -5,10 +5,13 @@ description = "Probabilistic model and Monte Carlo simulator that prices PGA Tou
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "matplotlib",
     "numpy",
     "pandas",
     "pgatourpy",
+    "pyyaml",
     "requests",
+    "scikit-learn",
 ]
 
 [dependency-groups]
