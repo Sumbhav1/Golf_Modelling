@@ -204,3 +204,13 @@ def test_validation_catches_duplicate_players():
     results = pd.concat([_event("R2022001", CUT_EVENT_POSITIONS)] * 2, ignore_index=True)
     with pytest.raises(ValueError, match="Duplicate"):
         tidy.build_tidy_tables(results)
+
+
+def test_covid_season_is_flagged_not_dropped():
+    normal = _event("R2019001", CUT_EVENT_POSITIONS).assign(year=2019)
+    covid = _event("R2020001", CUT_EVENT_POSITIONS).assign(year=2020)
+
+    events = _events(pd.concat([normal, covid], ignore_index=True))
+
+    assert events.groupby("season")["covid_season"].all().to_dict() == {2019: False, 2020: True}
+    assert events["win"].sum() == 2  # both seasons keep their labels

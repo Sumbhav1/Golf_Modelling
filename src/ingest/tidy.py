@@ -23,13 +23,18 @@ MIN_STROKE_MEDIAN = 40
 # (one W/D record shows 42 strokes and -30 to par).
 MAX_UNDER_PAR = 15
 
+# The 2020 season was cut short by COVID (fewer events and about a quarter fewer measured rounds
+# per player), so its season strokes gained is noisier. Flagged, not dropped: decide on
+# validation seasons only whether to exclude it.
+COVID_SEASON = 2020
+
 ROUND_COLUMNS = ["round_1", "round_2", "round_3", "round_4"]
 MATCH_PLAY_COLUMNS = ["round_5", "round_6", "round_7"]
 
 DATA_DIR = Path("data")
 PROCESSED_DIR = DATA_DIR / "processed"
 INPUTS = {
-    "2021_2025": DATA_DIR / "pga_training_data.csv",
+    "2018_2025": DATA_DIR / "pga_training_data.csv",
     "2026": DATA_DIR / "pga_prediction_data_2026.csv",
 }
 
@@ -119,6 +124,7 @@ def build_player_events(rows: pd.DataFrame) -> pd.DataFrame:
     made_cut_defined = standard & rows["has_cut"] & rows["status"].isin(["finished", "cut"])
     events["made_cut"] = _label(finished, made_cut_defined)
     events["season"] = rows["year"]
+    events["covid_season"] = events["season"] == COVID_SEASON
 
     keep = [
         "tournament_id",
@@ -138,6 +144,7 @@ def build_player_events(rows: pd.DataFrame) -> pd.DataFrame:
         "has_cut",
         "is_stroke_play",
         "is_standard_event",
+        "covid_season",
         "made_cut",
         "top10",
         "win",

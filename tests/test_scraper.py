@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -61,3 +63,32 @@ def test_validate_results_are_distinct_catches_mislabelled_copies():
     results = pd.concat([first, copy])
     with pytest.raises(RuntimeError, match="mislabelled"):
         scraper.validate_results_are_distinct(results)
+
+
+def test_results_have_scores():
+    scored = pd.DataFrame({"round_1": [70.0, np.nan], "round_2": [68.0, np.nan]})
+    unscored = pd.DataFrame({"round_1": [np.nan, np.nan], "round_2": [np.nan, np.nan]})
+
+    assert scraper.results_have_scores(scored)
+    assert not scraper.results_have_scores(unscored)  # the 2018 Ryder Cup case
+    assert not scraper.results_have_scores(pd.DataFrame({"position": ["1"]}))  # no round columns
+
+    dashes = pd.DataFrame({"round_1": ["-", "-"], "round_2": ["-", "-"]})
+    assert not scraper.results_have_scores(dashes)  # placeholders are not scores
+
+
+def test_call_with_deadline_returns_the_value_and_passes_arguments():
+    assert scraper.call_with_deadline(lambda a, b=0: a + b, 2, b=3) == 5
+
+
+def test_call_with_deadline_reraises_errors():
+    def fail():
+        raise ValueError("boom")
+
+    with pytest.raises(ValueError, match="boom"):
+        scraper.call_with_deadline(fail)
+
+
+def test_call_with_deadline_gives_up_on_a_stalled_call():
+    with pytest.raises(TimeoutError):
+        scraper.call_with_deadline(time.sleep, 2, seconds=0.1)
