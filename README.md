@@ -2,7 +2,7 @@
 
 A probabilistic model and Monte Carlo tournament simulator that prices PGA Tour outcomes (win, top-10, make-cut) and tests them honestly against bookmaker odds. Research only; it does not place bets.
 
-**Status:** Phase 0 (foundations and data audit), nearly done: 2021-2025 schedules, results and season strokes gained are collected and documented. The 2026 season is kept in separate files for prediction. No model or results yet. See [docs/PLAN.md](docs/PLAN.md) for the phases and checkboxes.
+**Status:** Phase 0 (foundations and data audit), nearly done: 2021-2025 schedules, results and season strokes gained are collected and documented. The 2026 season is kept in separate files for prediction. Tidy player-event and player-round tables with labels are built by `src/ingest/tidy.py`. No model or results yet. See [docs/PLAN.md](docs/PLAN.md) for the phases and checkboxes.
 
 ## Setup
 
