@@ -40,6 +40,14 @@ model1:
     min_samples_leaf: 50
     l2_regularization: 1.0
 
+sim:
+  n_sims: 10000
+  # Approximates the cutline as a fixed share of the field, for events without a known outcome
+  # (the historical average make-cut rate is about 0.52). Validation always also reports the
+  # "actual" cut mode, which replays the real number of survivors, to isolate the round-score
+  # model's quality from this assumption.
+  fallback_cut_fraction: 0.5
+
 evaluation:
   bootstrap_samples: 1000
   seed: 42

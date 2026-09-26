@@ -101,12 +101,13 @@ def calibration_table(y: Iterable[float], p: Iterable[float], bins: int) -> pd.D
     ).reset_index(drop=True)
 
 
-# Reference palette (validated default): categorical slots 1 and 2 on the light chart surface.
+# Reference palette (validated default): categorical slots 1-3 on the light chart surface (the
+# first three slots are the ones documented to validate against every pair, not just adjacent).
 SURFACE = "#fcfcfb"
 INK = "#0b0b0b"
 INK_SECONDARY = "#52514e"
 GRID = "#e4e3df"
-SERIES_COLORS = ["#2a78d6", "#eb6834"]  # blue, orange
+SERIES_COLORS = ["#2a78d6", "#eb6834", "#1baf7a"]  # blue, orange, aqua
 
 
 def plot_calibration(
