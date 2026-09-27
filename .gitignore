@@ -17,6 +17,7 @@ docs/
 CLAUDE.md
 scraper.py
 scripts/pull_majors_odds_once.py
+scripts/test_against_majors_odds.py
 
 # These test scraper.py, which is not part of the public repo (see above).
 tests/test_scraper.py
