@@ -56,12 +56,23 @@ def _features(
     return events, pd.DataFrame(round_rows)
 
 
-def test_simulate_predictions_returns_valid_probabilities_for_every_label():
+def test_fold_sigmas_returns_one_value_per_fold_test_season():
     features, rounds = _features([2019, 2020, 2021])
     folds = [([2019, 2020], 2021)]
 
+    sigmas = run_simulator.fold_sigmas(features, rounds, folds)
+
+    assert set(sigmas) == {2021}
+    assert sigmas[2021] > 0
+
+
+def test_simulate_predictions_returns_valid_probabilities_for_every_label():
+    features, rounds = _features([2019, 2020, 2021])
+    folds = [([2019, 2020], 2021)]
+    sigmas = run_simulator.fold_sigmas(features, rounds, folds)
+
     predictions = run_simulator.simulate_predictions(
-        features, rounds, folds, SIM_SETTINGS, "actual", seed=0
+        features, folds, sigmas, SIM_SETTINGS, "actual", seed=0
     )
 
     assert set(predictions) == set(run_simulator.LABELS)
@@ -76,10 +87,11 @@ def test_simulate_predictions_excludes_rows_where_the_label_is_undefined():
     """The first event of each season has no cut, so made_cut is undefined for all its players."""
     features, rounds = _features([2019, 2020, 2021], per_season_events=2)
     folds = [([2019, 2020], 2021)]
+    sigmas = run_simulator.fold_sigmas(features, rounds, folds)
     no_cut_event = "R2021000"
 
     predictions = run_simulator.simulate_predictions(
-        features, rounds, folds, SIM_SETTINGS, "actual", seed=0
+        features, folds, sigmas, SIM_SETTINGS, "actual", seed=0
     )
 
     assert no_cut_event not in set(predictions["made_cut"]["tournament_id"])
@@ -90,27 +102,45 @@ def test_simulate_predictions_probability_matches_a_direct_simulate_events_call(
     """Regression test for the column-name collision between simulated probabilities and labels."""
     features, rounds = _features([2019, 2020, 2021], per_season_events=1)
     folds = [([2019, 2020], 2021)]
+    sigmas = run_simulator.fold_sigmas(features, rounds, folds)
 
     predictions = run_simulator.simulate_predictions(
-        features, rounds, folds, SIM_SETTINGS, "actual", seed=0
+        features, folds, sigmas, SIM_SETTINGS, "actual", seed=0
     )
 
-    from src.sim.tournament import estimate_residual_sigma, simulate_events
+    from src.sim.tournament import simulate_events
 
-    train = features[features["season"].isin([2019, 2020])]
-    sigma = estimate_residual_sigma(train, rounds[rounds["season"].isin([2019, 2020])])
     direct = simulate_events(
-        features[features["season"] == 2021], sigma, SIM_SETTINGS["n_sims"], 0, "actual", 0.5
+        features[features["season"] == 2021], sigmas[2021], SIM_SETTINGS["n_sims"], 0, "actual", 0.5
     )
 
     merged = predictions["top10"].merge(direct, on=["tournament_id", "player_id"])
     assert merged["p"].to_numpy() == pytest.approx(merged["top10"].to_numpy())
 
 
+def test_simulate_predictions_does_not_depend_on_cut_mode_for_sigma():
+    """Sigma is a property of round-to-round noise, not the cut assumption used to score it."""
+    features, rounds = _features([2019, 2020, 2021])
+    folds = [([2019, 2020], 2021)]
+    sigmas = run_simulator.fold_sigmas(features, rounds, folds)
+
+    actual = run_simulator.simulate_predictions(
+        features, folds, sigmas, SIM_SETTINGS, "actual", seed=0
+    )
+    fraction = run_simulator.simulate_predictions(
+        features, folds, sigmas, SIM_SETTINGS, "fraction", seed=0
+    )
+
+    # Both modes should simulate the same field of ratings (win rarely depends on the cutline).
+    assert set(actual["win"]["tournament_id"]) == set(fraction["win"]["tournament_id"])
+
+
 def test_time_ten_thousand_sims_reports_the_biggest_field():
     features, _ = _features([2021], n_players=20, per_season_events=1)
 
-    field_size, seconds = run_simulator.time_ten_thousand_sims(features, sigma=2.5)
+    field_size, seconds = run_simulator.time_ten_thousand_sims(
+        features, sigma=2.5, fallback_cut_fraction=0.5
+    )
 
     assert field_size == 20
     assert seconds < 3.0

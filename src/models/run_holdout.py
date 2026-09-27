@@ -20,7 +20,7 @@ from src.models import run_model1 as model1_run
 from src.models.evaluation import calibration_table, plot_calibration, walk_forward_folds
 from src.models.model1 import FULL_COLUMNS, WIN_COLUMNS
 from src.models.model1 import walk_forward_predictions as model1_predictions
-from src.models.reporting import LABEL_NAMES, results_table, score_model
+from src.models.reporting import LABEL_NAMES, align_has_history, results_table, score_model
 
 LABELS = baseline_run.LABELS
 
@@ -104,7 +104,9 @@ def main() -> None:
     baseline, model, rows = {}, {}, []
     for label in LABELS:
         column = baseline_run.window_column(config["baseline1"]["feature"], windows[label])
-        baseline[label] = baseline_run.walk_forward_predictions(events, label, column, holdout_fold)
+        baseline[label] = align_has_history(
+            baseline_run.walk_forward_predictions(events, label, column, holdout_fold), features
+        )
         rows += score_model(label, "Baseline 1", baseline[label], None, samples, seed)
 
         kind, columns = ("softmax", WIN_COLUMNS) if label == "win" else ("logistic", FULL_COLUMNS)

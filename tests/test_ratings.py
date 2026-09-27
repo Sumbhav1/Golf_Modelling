@@ -68,6 +68,58 @@ def test_round_relative_scores_are_measured_against_the_rounds_field():
     assert sorted(first_round["rel"]) == [-2.0, 0.0, 2.0]  # 70, 72, 74 against their mean of 72
 
 
+def _one_event_rounds(scores: dict[int, list[float]]) -> pd.DataFrame:
+    """Rounds for a single made-up event; `scores[player]` lists that player's round scores."""
+    rows = [
+        {
+            "tournament_id": "E1",
+            "player_id": player,
+            "round": number,
+            "score": score,
+            "round_date": f"2022-01-{5 + number:02d}",
+            "is_standard_event": True,
+        }
+        for player, player_scores in scores.items()
+        for number, score in enumerate(player_scores, start=1)
+    ]
+    return pd.DataFrame(rows)
+
+
+ONE_EVENT = pd.DataFrame(
+    [{"tournament_id": "E1", "end_date": "2022-01-09"}]
+)  # round_relative_scores only needs the event's end date
+
+
+def test_round_relative_scores_corrects_rounds_3_and_4_for_the_survivor_field_gap():
+    # Full field of 4 in rounds 1-2: players 1-2 average 70/round, players 3-4 average 66/round
+    # (2 strokes/round better). Only players 3-4 make the cut and play rounds 3-4.
+    rounds = _one_event_rounds({1: [70, 70], 2: [70, 70], 3: [66, 66, 66, 66], 4: [66, 66, 66, 66]})
+
+    relative = ratings.round_relative_scores(rounds, ONE_EVENT).merge(
+        rounds[["player_id", "round_date", "round"]], on=["player_id", "round_date"]
+    )
+    player_3 = relative[relative["player_id"] == 3].set_index("round")["rel"]
+
+    # Rounds 1-2 are untouched: the full field's own mean is (70+70+66+66)/4 = 68.
+    assert player_3[1] == pytest.approx(66 - 68)
+    assert player_3[2] == pytest.approx(66 - 68)
+    # Round 3-4: survivors' own field mean is 66, so the raw rel would be 0; the survivor field is
+    # 2 strokes/round better than the full field (68 - 66), so the adjusted rel is -2 (credit for
+    # matching a field that is, on round-1/2 evidence, tougher than the full field).
+    assert player_3[3] == pytest.approx(-2.0)
+    assert player_3[4] == pytest.approx(-2.0)
+
+
+def test_round_relative_scores_leaves_a_no_cut_event_close_to_unadjusted():
+    # Everyone plays all 4 rounds, so the round-3/4 "survivor" field is the full field: gap ~ 0.
+    rounds = _one_event_rounds({1: [70, 70, 71, 69], 2: [68, 68, 67, 69]})
+
+    relative = ratings.round_relative_scores(rounds, ONE_EVENT)
+    round3 = relative[relative["round_date"] == "2022-01-08"]  # third calendar day
+
+    assert round3["rel"].sum() == pytest.approx(0.0, abs=1e-9)  # still centred on the field
+
+
 def test_decayed_history_matches_a_hand_calculation():
     history = pd.DataFrame(
         {

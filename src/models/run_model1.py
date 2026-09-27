@@ -30,7 +30,13 @@ from src.models.model1 import (
     fit_model1,
     walk_forward_predictions,
 )
-from src.models.reporting import LABEL_NAMES, markdown_table, results_table, score_model
+from src.models.reporting import (
+    LABEL_NAMES,
+    align_has_history,
+    markdown_table,
+    results_table,
+    score_model,
+)
 
 LABELS = baseline_run.LABELS
 MODELS = {
@@ -103,12 +109,23 @@ def chosen_baseline_windows(features: pd.DataFrame, folds: list, config: dict) -
 
 
 def baseline_predictions(features: pd.DataFrame, folds: list, config: dict) -> dict:
-    """Baseline 1 with its window chosen per label on the same folds, as in its own report."""
+    """Baseline 1 with its window chosen per label on the same folds, as in its own report.
+
+    `has_history` is realigned to Model 1's rating-based definition (see
+    `reporting.align_has_history`), since these predictions are always going into a table that
+    also has Model 1 or the simulator in it.
+    """
     settings = config["baseline1"]
     windows = chosen_baseline_windows(features, folds, config)
     return {
-        label: baseline_run.walk_forward_predictions(
-            features, label, baseline_run.window_column(settings["feature"], windows[label]), folds
+        label: align_has_history(
+            baseline_run.walk_forward_predictions(
+                features,
+                label,
+                baseline_run.window_column(settings["feature"], windows[label]),
+                folds,
+            ),
+            features,
         )
         for label in LABELS
     }
@@ -209,7 +226,10 @@ Baseline 1 use the same resampled events for both, so they are paired.
 {markdown_table(grid)}
 
 Chosen: long half-life {best[0]:.0f} days, shrinkage {best[1]:.0f} pseudo-rounds. Recent form uses a
-{config["model1"]["rating"]["short_half_life_days"]}-day half-life.
+{config["model1"]["rating"]["short_half_life_days"]}-day half-life. **The grid is essentially
+flat** (every combination is within {grid["log_loss"].max() - grid["log_loss"].min():.4f} log loss
+of each other), so this choice should not be read as informative on its own; treat any of these
+settings as equivalent within noise.
 
 ## Results, pooled validation seasons
 

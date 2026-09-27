@@ -6,12 +6,19 @@ forward-test ([2026]) seasons were **not** loaded or looked at.
 
 The simulator draws each round's field-relative score as `-rating + Normal(0, sigma)`, where
 `rating` is Model 1's as-of field-adjusted rating (half-life 365 days, shrinkage
-30 pseudo-rounds, as chosen on validation) and `sigma` (2.852 strokes) is the
-residual round-to-round standard deviation estimated on each fold's training seasons. A cut is
-applied after round 2. Win, top-10 and make-cut probabilities are the simulated frequency over
-10,000 tournaments. The main comparison below replays the real number of cut
-survivors (`cut_mode="actual"`), which validates the round-score model on its own, separately from
-the cut-size assumption a live forecast would need. Differences are model minus reference, so
+30 pseudo-rounds, as chosen on validation) and `sigma` is the residual round-to-round
+standard deviation, estimated separately on each fold's training seasons:
+
+| validate | sigma |
+|---|---|
+| 2023 | 2.9488 |
+| 2024 | 2.9423 |
+
+A cut is applied after round 2. Win, top-10 and make-cut probabilities are the simulated frequency
+over 30,000 tournaments. **The main comparison below approximates the cutline
+as a fixed 50% of the field (`cut_mode="fraction"`)**, the
+same information a live forecast would have; it is a fair comparison against Baseline 1 and Model 1,
+neither of which knows the true cutline either. Differences are model minus reference, so
 **negative means better**. Intervals are 95% bootstrap intervals over events (1000 resamples,
 seed 42); differences against Baseline 1 use the same resampled events for both, so they are
 paired.
@@ -21,38 +28,42 @@ paired.
 - validate 2023: fit on seasons [2019, 2020, 2021, 2022]
 - validate 2024: fit on seasons [2019, 2020, 2021, 2022, 2023]
 
-## Results, pooled validation seasons
+## Results, pooled validation seasons (`cut_mode="fraction"`)
 
 | Label | Model | Log loss (95% CI) | Diff vs naive (95% CI) | Diff vs Baseline 1 (95% CI) | Brier | Brier diff vs Baseline 1 (95% CI) |
 |---|---|---|---|---|---|---|
 | Make the cut | Baseline 1 | 0.6712 [0.6664, 0.6753] | -0.0216 [-0.0262, -0.0177] | - | 0.23932 | - |
-| Make the cut | Model 1 | 0.6399 [0.6318, 0.6474] | -0.0528 [-0.0609, -0.0455] | -0.0313 [-0.0384, -0.0243] | 0.22458 | -0.01474 [-0.01797, -0.01164] |
+| Make the cut | Model 1 | 0.6398 [0.6315, 0.6474] | -0.0530 [-0.0611, -0.0454] | -0.0314 [-0.0388, -0.0244] | 0.22447 | -0.01485 [-0.01814, -0.01168] |
 | Top 10 | Baseline 1 | 0.2874 [0.2762, 0.3009] | -0.0238 [-0.0291, -0.0187] | - | 0.07952 | - |
-| Top 10 | Model 1 | 0.2693 [0.2584, 0.2816] | -0.0419 [-0.0490, -0.0356] | -0.0181 [-0.0214, -0.0149] | 0.07599 | -0.00353 [-0.00450, -0.00270] |
+| Top 10 | Model 1 | 0.2704 [0.2596, 0.2826] | -0.0408 [-0.0478, -0.0343] | -0.0170 [-0.0202, -0.0137] | 0.07623 | -0.00329 [-0.00421, -0.00244] |
 | Win | Baseline 1 | 0.0425 [0.0401, 0.0450] | -0.0041 [-0.0059, -0.0025] | - | 0.00780 | - |
-| Win | Model 1 | 0.0395 [0.0371, 0.0420] | -0.0071 [-0.0093, -0.0050] | -0.0030 [-0.0041, -0.0019] | 0.00758 | -0.00022 [-0.00036, -0.00011] |
-| Make the cut | Simulator | 0.6565 [0.6513, 0.6607] | -0.0362 [-0.0410, -0.0323] | -0.0147 [-0.0186, -0.0107] | 0.23223 | -0.00709 [-0.00896, -0.00523] |
-| Top 10 | Simulator | 0.2785 [0.2680, 0.2904] | -0.0328 [-0.0390, -0.0272] | -0.0089 [-0.0121, -0.0059] | 0.07829 | -0.00123 [-0.00215, -0.00046] |
-| Win | Simulator | 0.0413 [0.0393, 0.0436] | -0.0053 [-0.0067, -0.0040] | -0.0012 [-0.0022, -0.0002] | 0.00774 | -0.00006 [-0.00011, -0.00001] |
+| Win | Model 1 | 0.0399 [0.0375, 0.0424] | -0.0068 [-0.0089, -0.0046] | -0.0027 [-0.0038, -0.0015] | 0.00761 | -0.00018 [-0.00030, -0.00009] |
+| Make the cut | Simulator | 0.6586 [0.6549, 0.6619] | -0.0341 [-0.0382, -0.0308] | -0.0126 [-0.0167, -0.0079] | 0.23309 | -0.00622 [-0.00821, -0.00397] |
+| Top 10 | Simulator | 0.2761 [0.2656, 0.2880] | -0.0351 [-0.0413, -0.0294] | -0.0113 [-0.0145, -0.0082] | 0.07790 | -0.00162 [-0.00251, -0.00084] |
+| Win | Simulator | 0.0409 [0.0389, 0.0432] | -0.0057 [-0.0071, -0.0043] | -0.0016 [-0.0025, -0.0006] | 0.00773 | -0.00007 [-0.00012, -0.00002] |
 
 ## Speed check
 
-10,000 simulations of the largest validation-season field (170
-players) took 0.142 seconds.
+10,000 simulations of the largest validation-season field (170 players) took
+0.142 seconds (fastest of 3 runs) — the Phase 2 target is 10,000+ in seconds, checked here
+independently of `sim.n_sims` (30,000, used for the results above).
 
-## Sensitivity to the cut assumption
+## Diagnostic: replaying the true cutline (`cut_mode="actual"`)
 
-`cut_mode="fraction"`, 50% of the field
+This is **not** a fair comparison against Baseline 1 or Model 1: it gives the simulator the real
+number of players who made the cut, an outcome the make-cut label directly measures, so it should
+only be read as an upper bound on the round-score model's own quality, isolated from the cut-size
+assumption. The gap below is this diagnostic's log loss minus the fair (`"fraction"`) result above:
 
-For events without a known outcome, the cut has to be approximated. This shows the same simulator
-with a fixed-fraction cutline instead of the real one, compared to the naive forecast (pooled
-validation log loss; lower is better):
-
-| label | log_loss | diff_vs_naive |
+| label | log_loss | diff_vs_fair_cut_mode |
 |---|---|---|
-| Make the cut | 0.6652 | -0.0276 |
-| Top 10 | 0.2785 | -0.0328 |
-| Win | 0.0413 | -0.0053 |
+| Make the cut | 0.6499 | -0.0088 |
+| Top 10 | 0.2761 | -0.0000 |
+| Win | 0.0409 | -0.0000 |
+
+Win and top 10 are barely affected by the cutline assumption (favourites are rarely near the cut
+line), so their diagnostic and fair-comparison numbers are close; make-cut is the label the cutline
+assumption actually matters for.
 
 Calibration: `simulator_calibration.png` (pooled validation predictions, equal-frequency bins,
-`cut_mode="actual"`).
+`cut_mode="fraction"`).

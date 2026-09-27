@@ -235,3 +235,21 @@ def test_ten_thousand_simulations_of_a_large_field_run_in_well_under_a_second():
     elapsed = time.perf_counter() - start
 
     assert elapsed < 3.0
+
+
+def test_cut_keep_zero_means_nobody_survives():
+    rng = np.random.default_rng(4)
+    rating = np.array([1.0, 0.0, -1.0])
+
+    result = sim.simulate_event(rating, sigma=2.0, n_sims=500, rng=rng, cut_keep=0)
+
+    assert (result["made_cut"] == 0.0).all()
+    assert result["win"].sum() == pytest.approx(0.0)  # nobody survives to be ranked
+    assert result["top10"].sum() == pytest.approx(0.0)
+
+
+def test_cut_keep_negative_is_treated_like_zero():
+    rng = np.random.default_rng(4)
+    result = sim.simulate_event(np.zeros(3), sigma=2.0, n_sims=500, rng=rng, cut_keep=-1)
+
+    assert (result["made_cut"] == 0.0).all()

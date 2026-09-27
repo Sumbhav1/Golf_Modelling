@@ -41,7 +41,11 @@ model1:
     l2_regularization: 1.0
 
 sim:
-  n_sims: 10000
+  # A 0.5% event (e.g. a plausible win chance) has a Monte Carlo standard error of about 14% of
+  # its own value at 10,000 sims; 30,000 brings that to about 8%. The Phase 2 "10,000+ sims in
+  # seconds" target is checked separately (see the speed check in the simulator report) and is not
+  # tied to this production setting.
+  n_sims: 30000
   # Approximates the cutline as a fixed share of the field, for events without a known outcome
   # (the historical average make-cut rate is about 0.52). Validation always also reports the
   # "actual" cut mode, which replays the real number of survivors, to isolate the round-score

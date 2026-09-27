@@ -20,17 +20,50 @@ import pandas as pd
 DAY = np.timedelta64(1, "D")
 
 
+CUT_ROUNDS = (3, 4)
+
+
+def _survivor_field_gap(standard: pd.DataFrame) -> pd.Series:
+    """Per event, how many strokes per round better the round-3/4 field is than the full field.
+
+    Rounds 3 and 4 are only played by players who made the cut, a stronger sub-field than rounds
+    1-2's full field. Measuring a round-3/4 score against only that stronger sub-field understates
+    a good player's performance (beating tough peers looks merely average) and inflates measured
+    round-to-round noise. This returns the gap so it can be added back.
+    """
+    early = standard[standard["round"].isin([1, 2])]
+    per_player = early.groupby(["tournament_id", "player_id"])["score"].mean()  # per-round pace
+    full_field = per_player.groupby("tournament_id").mean()
+
+    later = standard[standard["round"].isin(CUT_ROUNDS)][["tournament_id", "player_id", "round"]]
+    survivor_pace = later.join(per_player.rename("pace"), on=["tournament_id", "player_id"])
+    survivor_field = survivor_pace.groupby(["tournament_id", "round"])["pace"].mean()
+
+    gap = full_field.reindex(survivor_field.index, level="tournament_id") - survivor_field
+    return gap.rename("gap")
+
+
 def round_relative_scores(rounds: pd.DataFrame, events: pd.DataFrame) -> pd.DataFrame:
     """Standard-event rounds with `rel` (score minus the round's field average) and the event's end.
 
     Rounds of non-standard events are left out: Stableford points, scrambles and match play are
-    not comparable strokes.
+    not comparable strokes. Rounds 3 and 4 are corrected for the cut's selection effect (see
+    `_survivor_field_gap`); a no-cut event's round-3/4 field is close to the full field, so the
+    correction is close to zero there.
     """
     standard = rounds[rounds["is_standard_event"]].copy()
     standard["score"] = standard["score"].astype(float)
     standard["rel"] = standard["score"] - standard.groupby(["tournament_id", "round"])[
         "score"
     ].transform("mean")
+
+    gap = _survivor_field_gap(standard)
+    later = standard["round"].isin(CUT_ROUNDS)
+    aligned_gap = (
+        standard.loc[later].join(gap, on=["tournament_id", "round"], how="left")["gap"].fillna(0.0)
+    )
+    standard.loc[later, "rel"] = standard.loc[later, "rel"].to_numpy() - aligned_gap.to_numpy()
+
     ends = events.drop_duplicates("tournament_id")[["tournament_id", "end_date"]]
     standard = standard.merge(ends.rename(columns={"end_date": "event_end_date"}), how="left")
     return standard[["tournament_id", "player_id", "round_date", "event_end_date", "rel"]]

@@ -79,7 +79,9 @@ def simulate_event(
         mean, sigma, size=(n_sims, n_players)
     )
 
-    if cut_keep is not None and cut_keep < n_players:
+    if cut_keep is not None and cut_keep <= 0:
+        made_cut = np.zeros_like(rounds_1_2, dtype=bool)  # nobody survives (a degenerate field)
+    elif cut_keep is not None and cut_keep < n_players:
         cut_line = np.partition(rounds_1_2, cut_keep - 1, axis=1)[:, cut_keep - 1 : cut_keep]
         made_cut = rounds_1_2 <= cut_line
     else:
@@ -92,11 +94,12 @@ def simulate_event(
     for_ranking = np.where(made_cut, total, np.inf)  # eliminated players cannot win or place
 
     rank = for_ranking.argsort(axis=1, kind="stable").argsort(axis=1, kind="stable") + 1
+    any_survivor = made_cut.any(axis=1, keepdims=True)  # False in the degenerate all-cut field
 
     return {
-        "win": (rank == 1).mean(axis=0),
-        "top5": (rank <= 5).mean(axis=0),
-        "top10": (rank <= 10).mean(axis=0),
+        "win": ((rank == 1) & any_survivor).mean(axis=0),
+        "top5": ((rank <= 5) & any_survivor).mean(axis=0),
+        "top10": ((rank <= 10) & any_survivor).mean(axis=0),
         "made_cut": made_cut.mean(axis=0),
     }
 

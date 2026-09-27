@@ -102,3 +102,45 @@ def test_markdown_table_formats_floats_and_nan():
     assert "| feature | value |" in table
     assert "1.23" in table
     assert "| b | - |" in table
+
+
+def test_align_has_history_uses_the_rating_based_definition():
+    """Baseline 1's own SG-based has_history must not silently differ from Model 1's population."""
+    predictions = pd.DataFrame(
+        {
+            "tournament_id": ["E1", "E1", "E1"],
+            "player_id": [1, 2, 3],
+            "has_history": [True, True, False],  # Baseline 1's own (SG-based) flag
+        }
+    )
+    features = pd.DataFrame(
+        {
+            "tournament_id": ["E1", "E1", "E1"],
+            "player_id": [1, 2, 3],
+            "no_history": [0, 1, 0],  # Model 1's (rating-based) flag disagrees with both above
+        }
+    )
+
+    aligned = reporting.align_has_history(predictions, features)
+
+    assert aligned.set_index("player_id")["has_history"].to_dict() == {1: True, 2: False, 3: True}
+    assert "no_history" not in aligned.columns
+
+
+def test_align_has_history_does_not_change_row_count_or_other_columns():
+    predictions = pd.DataFrame(
+        {
+            "tournament_id": ["E1", "E1"],
+            "player_id": [1, 2],
+            "has_history": [True, True],
+            "p": [0.4, 0.6],
+        }
+    )
+    features = pd.DataFrame(
+        {"tournament_id": ["E1", "E1"], "player_id": [1, 2], "no_history": [0, 0]}
+    )
+
+    aligned = reporting.align_has_history(predictions, features)
+
+    assert len(aligned) == 2
+    assert aligned["p"].tolist() == [0.4, 0.6]

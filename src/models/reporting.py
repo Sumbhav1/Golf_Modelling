@@ -18,6 +18,27 @@ def paired_scores(frame: pd.DataFrame, reference: pd.DataFrame, samples: int, se
     return score_forecasts(merged, samples, seed)
 
 
+def align_has_history(predictions: pd.DataFrame, features: pd.DataFrame) -> pd.DataFrame:
+    """Overwrite `has_history` with Model 1's rating-based definition (`no_history == 0`).
+
+    Baseline 1 defines "has history" as having a rolling-strokes-gained value (a narrower,
+    season-level criterion, since season SG needs ShotLink coverage); Model 1 and the simulator
+    define it as having any earlier round at all, a much broader population. Left unaligned, a
+    "players with history" slice silently compares two different populations between models, which
+    made the reported numbers in that slice non-comparable (see docs/DECISIONS.md). Call this on
+    Baseline 1's predictions before putting them in the same comparison table as Model 1 or the
+    simulator, both of which already use the rating-based definition.
+    """
+    canonical = features[["tournament_id", "player_id", "no_history"]].drop_duplicates(
+        ["tournament_id", "player_id"]
+    )
+    merged = predictions.drop(columns="has_history").merge(
+        canonical, on=["tournament_id", "player_id"], how="left", validate="many_to_one"
+    )
+    merged["has_history"] = merged["no_history"] == 0
+    return merged.drop(columns="no_history")
+
+
 def slices_of(predictions: pd.DataFrame) -> dict[str, pd.DataFrame]:
     slices = {"pooled": predictions}
     for season in sorted(predictions["season"].unique()):
