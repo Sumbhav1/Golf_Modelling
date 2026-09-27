@@ -2,7 +2,7 @@
 
 A probabilistic model and Monte Carlo tournament simulator that prices PGA Tour outcomes (win, top-10, make-cut) and tests them honestly against bookmaker odds. Research only; it does not place bets.
 
-**Status:** Phase 0 (foundations and data audit), nearly done: 2018-2025 schedules, results and season strokes gained are collected and documented. The 2026 season is kept in separate files for prediction. Tidy player-event and player-round tables with labels are built by `src/ingest/tidy.py`. Baseline 1 (rolling strokes gained to probabilities) beats the naive forecast on the 2023-2024 validation seasons ([report](reports/baseline1_validation.md)), and Model 1 (field-adjusted ratings from round scores) beats Baseline 1 on make-cut, top 10 and win ([report](reports/model1_validation.md)). The frozen 2025 holdout confirms make-cut and top 10; win's edge over Baseline 1 did not reproduce with significance ([holdout report](reports/holdout_2025_results.md)). A first Monte Carlo simulator (round-score model plus the cut) beats the naive forecast and Baseline 1 under a fair (no-outcome-information) cutline assumption, but not yet Model 1's classifier ([simulator report](reports/simulator_validation.md)). See [docs/PLAN.md](docs/PLAN.md) for the phases and checkboxes.
+**Status:** early and in progress. The pipeline runs end to end on 2018-2025 PGA Tour data (plus a separate 2026 feed for live prediction): raw results and strokes gained in, tidy player-round tables out, two probability models and a first Monte Carlo simulator on top. Every model is checked against a naive baseline, a walk-forward validation split, and a frozen holdout season, with confidence intervals and calibration plots throughout. So far the models beat the naive baseline; a market baseline (bookmaker odds) isn't wired in yet. Full results are in [`reports/`](reports/).
 
 ## Setup
 
@@ -12,10 +12,9 @@ uv run pytest
 uv run ruff check . && uv run ruff format --check .
 ```
 
-## Docs
+## Results
 
-- [docs/IDEA.md](docs/IDEA.md): what this is and why
-- [docs/PLAN.md](docs/PLAN.md): phases and status
-- [docs/DECISIONS.md](docs/DECISIONS.md): every modelling and design choice
-- [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md): data sources, dates and terms
-- [docs/DATA_STRUCTURE.md](docs/DATA_STRUCTURE.md): data files, columns, joins and quirks
+- [reports/baseline1_validation.md](reports/baseline1_validation.md): strokes-gained baseline
+- [reports/model1_validation.md](reports/model1_validation.md): field-adjusted rating model
+- [reports/holdout_2025_results.md](reports/holdout_2025_results.md): frozen 2025 holdout, one look
+- [reports/simulator_validation.md](reports/simulator_validation.md): Monte Carlo simulator
