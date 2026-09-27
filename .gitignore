@@ -16,3 +16,4 @@ __pycache__/
 docs/
 CLAUDE.md
 scraper.py
+scripts/pull_majors_odds_once.py
