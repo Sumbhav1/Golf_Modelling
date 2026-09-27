@@ -10,6 +10,9 @@ dependencies = [
     "pandas",
     "pyyaml",
     "scikit-learn",
+    "fastapi",
+    "uvicorn",
+    "streamlit",
 ]
 
 [dependency-groups]
