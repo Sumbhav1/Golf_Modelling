@@ -4,6 +4,7 @@ data:
   events_history: data/processed/player_events_2018_2025.csv
   rounds_history: data/processed/player_rounds_2018_2025.csv
   events_2026: data/processed/player_events_2026.csv
+  rounds_2026: data/processed/player_rounds_2026.csv
 
 # Seasons are the Tour season labels (see docs/DATA_STRUCTURE.md).
 splits:
