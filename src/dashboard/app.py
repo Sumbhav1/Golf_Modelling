@@ -5,12 +5,13 @@ Run with `uv run streamlit run src/dashboard/app.py`. Reads the same bundle the 
 `src.api.serving` - no HTTP calls between the two, and neither ever re-fits a model at request
 time (see docs/DECISIONS.md). Research only; does not place bets.
 
-Scope (v1): a viewer over the already-published validation/holdout/forward-test reports, and a
+Scope (v1): a viewer over the already-published validation/holdout/forward-test reports, a
 per-event, per-player prediction browser across all four forecasts (Baseline 1, Model 1, Simulator,
-Naive). What this does *not* do, because the data does not support it yet: a market-vs-model panel
-(no public odds source; see docs/DECISIONS.md) and a raw simulated-outcome distribution (the
-exported bundle holds each player's simulated *probability*, not the underlying per-simulation
-draws) - both dropped rather than built as placeholders, per the same call made in `docs/PLAN.md`.
+Naive), and a page explaining the backtest plan and why it isn't running yet. What this does *not*
+do, because the data does not support it yet: a market-vs-model panel (no public odds source; see
+docs/DECISIONS.md) and a raw simulated-outcome distribution (the exported bundle holds each
+player's simulated *probability*, not the underlying per-simulation draws) - both dropped rather
+than built as placeholders, per the same call made in `docs/PLAN.md`.
 
 Both pages lead with plain-language framing (a glossary, per-metric verdicts, a per-event "what
 actually happened" callout) before the underlying numbers, rather than a raw dump of report/export
@@ -26,6 +27,7 @@ import pandas as pd
 import streamlit as st
 
 from src.api import serving
+from src.backtest.odds import fair_win_probabilities, implied_probability, overround
 from src.models.run_baseline1 import LABEL_NAMES
 
 REPORT_DIR = Path("reports")
@@ -305,6 +307,108 @@ def explorer_page() -> None:
     )
 
 
+def _parse_odds(text: str) -> list[float] | None:
+    """American odds like "-150, +200, +500" to floats, or None if any entry doesn't parse."""
+    entries = [entry.strip() for entry in text.split(",") if entry.strip()]
+    if not entries:
+        return None
+    try:
+        return [float(entry.replace("+", "")) for entry in entries]
+    except ValueError:
+        return None
+
+
+def backtest_plan_page() -> None:
+    st.header("Backtest plan: pricing against the market")
+    st.warning(
+        "**Blocked, honestly:** no general (multi-market, full-season) historical odds source "
+        "has been found, so there is no market backtest to show here - just the plan for when "
+        "one exists, and the piece of it that's already built and tested."
+    )
+
+    st.markdown("#### What a real backtest here would have to report")
+    st.markdown(
+        "- Only odds available **before** the event started, with opening vs closing lines "
+        "labelled separately - never a line that came out after the fact.\n"
+        "- The bookmaker's margin (the vig) included, not ignored.\n"
+        "- Realistic costs: stake caps, a minimum-odds floor, and a **fractional**-Kelly stake "
+        "cap - never full Kelly, which is far too aggressive for a model this uncertain.\n"
+        "- Number of bets, ROI, hit rate, the Sharpe ratio of per-event returns, max drawdown, "
+        "and bootstrap confidence intervals over events, not rows.\n"
+        "- A **random-strategy control** that should lose roughly the vig - if it doesn't, "
+        "something is wrong with the backtest itself, not the model.\n"
+        '- "No reliable edge after costs" reported as a real, valid answer if that\'s what the '
+        "numbers say, not hidden or explained away."
+    )
+
+    st.markdown("#### Why it's blocked")
+    st.markdown(
+        "PGA Tour odds are mostly sold through paid, licensed feeds, or published only as "
+        "one-off web tables whose terms don't allow bulk reuse - not the kind of source this "
+        "project would build a public backtest on. A small, licence-restricted set of "
+        "majors-only historical win odds was pulled for local spot-checking only; it stays off "
+        "this dashboard and out of the git history, since reusing licensed data beyond its "
+        "terms isn't something this project does, even informally or for a quick look. That "
+        "spot-check suggested the model may be closer to market-competitive than to the naive "
+        "baseline, but the sample (19 events) was far too small to call that a finding."
+    )
+
+    st.markdown("#### What's already built and tested")
+    st.markdown(
+        "`src/backtest/odds.py` turns American odds into a fair, de-vigged win probability: "
+        "convert each price to its raw implied probability, then scale the whole field down so "
+        "it sums to exactly 1 instead of the bookmaker's built-in margin. It doesn't know or "
+        "care where the odds come from, so it's ready for whatever source eventually gets wired "
+        "in, historical or live. Try it on a made-up field:"
+    )
+
+    text = st.text_input(
+        "American odds for a field (comma-separated)", "-150, +200, +500, +1000, +2500"
+    )
+    values = _parse_odds(text)
+    if values is None:
+        st.error("Couldn't parse that - use American odds like -150 or +200, comma-separated.")
+        return
+
+    raw = implied_probability(values)
+    fair = fair_win_probabilities(values)
+    st.metric(
+        "Bookmaker margin (the vig)",
+        f"{overround(raw):.1%}",
+        help="How far the raw implied probabilities sum above 100% - the book's built-in edge, "
+        "removed by de-vigging.",
+    )
+    calculator = pd.DataFrame(
+        {
+            "Player": [f"Player {i + 1}" for i in range(len(values))],
+            "American odds": values,
+            "Implied probability": raw * 100,
+            "Fair (de-vigged) probability": fair * 100,
+        }
+    )
+    st.dataframe(
+        calculator,
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "Implied probability": st.column_config.ProgressColumn(
+                "Implied probability",
+                help="What the odds alone imply - includes the bookmaker's margin.",
+                format="%.1f%%",
+                min_value=0,
+                max_value=100,
+            ),
+            "Fair (de-vigged) probability": st.column_config.ProgressColumn(
+                "Fair (de-vigged) probability",
+                help="The margin removed, proportionally, so the field sums to exactly 100%.",
+                format="%.1f%%",
+                min_value=0,
+                max_value=100,
+            ),
+        },
+    )
+
+
 def main() -> None:
     st.title("Golf Pricing Engine")
     st.caption(
@@ -317,11 +421,13 @@ def main() -> None:
         st.error(str(exc))
         st.stop()
 
-    page = st.sidebar.radio("Page", ["Model results", "Event explorer"])
+    page = st.sidebar.radio("Page", ["Model results", "Event explorer", "Backtest plan"])
     if page == "Model results":
         results_page()
-    else:
+    elif page == "Event explorer":
         explorer_page()
+    else:
+        backtest_plan_page()
 
 
 main()

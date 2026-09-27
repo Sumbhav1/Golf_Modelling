@@ -31,4 +31,4 @@ uv run uvicorn src.api.main:app --reload      # API: http://localhost:8000/docs
 uv run streamlit run src/dashboard/app.py     # dashboard, in a separate terminal
 ```
 
-The API has `/health`, `/events` and `/events/{tournament_id}/predictions`. The dashboard has a results viewer over `reports/` and an event explorer across validation, the frozen holdout and the ongoing forward test. Neither has a market-vs-model panel or a backtest equity curve - there is no public odds source or backtest to show (see `reports/`), so those were dropped rather than built as placeholders.
+The API has `/health`, `/events` and `/events/{tournament_id}/predictions`. The dashboard has a results viewer over `reports/`, an event explorer across validation, the frozen holdout and the ongoing forward test, and a backtest-plan page (the methodology, why it isn't running yet, and a live vig-removal calculator over `src/backtest/odds.py`). Neither has a market-vs-model panel or a backtest equity curve - there is no public odds source or backtest to show (see `reports/`), so those were dropped rather than built as placeholders.

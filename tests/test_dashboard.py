@@ -7,6 +7,7 @@ from src.dashboard.app import (
     REPORTS,
     _best_model_column,
     _event_insight,
+    _parse_odds,
     _player_table,
     _verdict,
 )
@@ -140,3 +141,15 @@ def test_every_report_points_at_metrics_and_calibration_files_that_actually_exis
 
 def test_report_dir_is_the_real_reports_directory():
     assert REPORT_DIR == Path("reports")
+
+
+def test_parse_odds_reads_american_odds_with_or_without_a_leading_plus():
+    assert _parse_odds("-150, +200, +500") == [-150.0, 200.0, 500.0]
+    assert _parse_odds("-150,200,500") == [-150.0, 200.0, 500.0]  # a bare "+" is optional
+
+
+def test_parse_odds_is_none_for_unparseable_or_empty_input():
+    assert _parse_odds("not odds") is None
+    assert _parse_odds("") is None
+    assert _parse_odds("   ") is None
+    assert _parse_odds("-150, banana, +500") is None  # one bad entry spoils the whole field
