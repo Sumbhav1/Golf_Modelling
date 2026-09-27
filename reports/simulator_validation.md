@@ -6,8 +6,10 @@ forward-test ([2026]) seasons were **not** loaded or looked at.
 
 The simulator draws each round's field-relative score as `-rating + Normal(0, sigma)`, where
 `rating` is Model 1's as-of field-adjusted rating (half-life 365 days, shrinkage
-30 pseudo-rounds, as chosen on validation) and `sigma` is the residual round-to-round
-standard deviation, estimated separately on each fold's training seasons:
+30 pseudo-rounds, as chosen on validation) and `sigma` is one pooled residual
+round-to-round standard deviation, estimated separately on each fold's training seasons (better
+players are measurably more consistent, but a skill-dependent sigma was tried and did not improve
+results here; see docs/DECISIONS.md):
 
 | validate | sigma |
 |---|---|
@@ -45,7 +47,7 @@ paired.
 ## Speed check
 
 10,000 simulations of the largest validation-season field (170 players) took
-0.142 seconds (fastest of 3 runs) — the Phase 2 target is 10,000+ in seconds, checked here
+0.145 seconds (fastest of 3 runs) — the Phase 2 target is 10,000+ in seconds, checked here
 independently of `sim.n_sims` (30,000, used for the results above).
 
 ## Diagnostic: replaying the true cutline (`cut_mode="actual"`)

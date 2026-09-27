@@ -11,3 +11,8 @@ __pycache__/
 # Notebooks and OS
 .ipynb_checkpoints/
 .DS_Store
+
+# Claude Code instructions and internal working docs: not part of the public deliverable.
+docs/
+CLAUDE.md
+scraper.py

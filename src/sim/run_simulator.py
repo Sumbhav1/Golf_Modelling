@@ -34,7 +34,8 @@ def fold_sigmas(features: pd.DataFrame, rounds: pd.DataFrame, folds: list) -> di
     """Residual sigma per fold's training seasons, computed once and shared by every use of it.
 
     Sigma does not depend on the cut mode, so the same per-fold value is used whichever cutline
-    assumption is being simulated.
+    assumption is being simulated. A skill-dependent alternative (`tournament.SigmaModel`) was
+    tried and tested but is not used here: see docs/DECISIONS.md.
     """
     return {
         test_season: estimate_residual_sigma(
@@ -140,8 +141,10 @@ forward-test ({config["splits"]["forward_test_seasons"]}) seasons were **not** l
 
 The simulator draws each round's field-relative score as `-rating + Normal(0, sigma)`, where
 `rating` is Model 1's as-of field-adjusted rating (half-life {half_life:.0f} days, shrinkage
-{shrink:.0f} pseudo-rounds, as chosen on validation) and `sigma` is the residual round-to-round
-standard deviation, estimated separately on each fold's training seasons:
+{shrink:.0f} pseudo-rounds, as chosen on validation) and `sigma` is one pooled residual
+round-to-round standard deviation, estimated separately on each fold's training seasons (better
+players are measurably more consistent, but a skill-dependent sigma was tried and did not improve
+results here; see docs/DECISIONS.md):
 
 {sigma_table}
 

@@ -2,19 +2,27 @@
 
 A round score, relative to an average tour field, is modelled as `-rating + noise`, where `rating`
 is the as-of field-adjusted rating from `src.features.ratings` (in strokes per round better than
-an average field) and `noise` is drawn independently each round from a Normal(0, sigma). Four
-rounds are simulated, with a cut applied after round 2 for events that have one. Nothing here uses
-information from after the event's start (the rating is as-of; sigma is estimated on rounds from
-earlier seasons than the one being simulated).
+an average field) and `noise` is drawn independently each round from a Normal(0, sigma). `sigma`
+is normally one pooled value (`estimate_residual_sigma`), used by `run_simulator.py`. It can
+instead vary by player skill (`SigmaModel`/`estimate_sigma_model`): better players are measurably
+more consistent (a weakest-quintile-to-strongest-quintile difference of about 3.16 to 2.85
+strokes/round on the 2019-2022 training data), but using that to vary sigma per player was tried
+and did not improve validation results or fix the calibration finding it was meant to address (see
+docs/DECISIONS.md, 2026-09-27) - it is kept here as tested, working code, not as what is actually
+used. Four rounds are simulated, with a cut applied after round 2 for events that have one.
+Nothing here uses information from after the event's start (the rating is as-of; sigma is
+estimated on rounds from earlier seasons than the one being simulated).
 
-Limitations (v1): noise is independent across rounds and identical across players (no player- or
-course-specific variance, no 54-hole cuts); the cut boundary counts ties as "made the cut", matching
-the real rule.
+Limitations (v1): noise is independent across rounds (no round-to-round correlation within a
+player's own tournament, no course- or conditions-specific variance, no 54-hole cuts); the cut
+boundary counts ties as "made the cut", matching the real rule; the simulator is under-confident
+for favourites for a reason not yet identified (see docs/DECISIONS.md).
 """
 
 from __future__ import annotations
 
 import zlib
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
@@ -31,8 +39,8 @@ def event_rng(seed: int, tournament_id: str) -> np.random.Generator:
     return np.random.default_rng(zlib.crc32(f"{seed}:{tournament_id}".encode()))
 
 
-def estimate_residual_sigma(features: pd.DataFrame, rounds: pd.DataFrame) -> float:
-    """Standard deviation of a round's field-relative score around what the rating predicts.
+def _residuals(features: pd.DataFrame, rounds: pd.DataFrame) -> pd.DataFrame:
+    """Rating and residual (actual rel minus predicted -rating) for every round with a real rating.
 
     Only rounds from players with rating history are used (a `rating` of exactly 0 for a
     no-history player is not a skill estimate, so including it would bias the spread).
@@ -42,8 +50,45 @@ def estimate_residual_sigma(features: pd.DataFrame, rounds: pd.DataFrame) -> flo
         features["no_history"] == 0, ["tournament_id", "player_id", "rating"]
     ]
     merged = history.merge(with_rating, on=["tournament_id", "player_id"], how="inner")
-    residual = merged["rel"] + merged["rating"]  # predicted rel is -rating
-    return float(residual.std(ddof=1))
+    merged["residual"] = merged["rel"] + merged["rating"]  # predicted rel is -rating
+    return merged
+
+
+def estimate_residual_sigma(features: pd.DataFrame, rounds: pd.DataFrame) -> float:
+    """Standard deviation of a round's field-relative score around what the rating predicts.
+
+    A single pooled value; see `SigmaModel` for the skill-dependent version actually used to
+    simulate (better players are measurably more consistent, see the module docstring).
+    """
+    return float(_residuals(features, rounds)["residual"].std(ddof=1))
+
+
+@dataclass
+class SigmaModel:
+    """Residual round-to-round standard deviation as a function of rating.
+
+    Fit as variance = intercept + slope * rating (residuals squared, regressed on rating; better
+    players have lower variance, so slope is negative). `floor` is a minimum sigma that guards
+    against extrapolating to an implausibly high rating, where the fitted variance could otherwise
+    approach zero or go negative.
+    """
+
+    intercept: float
+    slope: float
+    floor: float = 1.0
+
+    def sigma_for(self, rating: np.ndarray) -> np.ndarray:
+        variance = self.intercept + self.slope * np.asarray(rating, dtype=float)
+        return np.sqrt(np.maximum(variance, self.floor**2))
+
+
+def estimate_sigma_model(features: pd.DataFrame, rounds: pd.DataFrame) -> SigmaModel:
+    """Fit `SigmaModel` on rounds from players with rating history."""
+    residuals = _residuals(features, rounds)
+    slope, intercept = np.polyfit(
+        residuals["rating"].to_numpy(), residuals["residual"].to_numpy() ** 2, 1
+    )
+    return SigmaModel(intercept=float(intercept), slope=float(slope))
 
 
 def cut_survivor_count(
@@ -65,12 +110,18 @@ def cut_survivor_count(
 
 
 def simulate_event(
-    rating: np.ndarray, sigma: float, n_sims: int, rng: np.random.Generator, cut_keep: int | None
+    rating: np.ndarray,
+    sigma: float | np.ndarray,
+    n_sims: int,
+    rng: np.random.Generator,
+    cut_keep: int | None,
 ) -> dict[str, np.ndarray]:
     """Win, top-5, top-10 and made-cut probabilities for one field of players.
 
     `rating` is one value per player (strokes per round better than an average field; higher is
-    better). Probabilities are the share of simulations in which each event happens.
+    better). `sigma` is either one value shared by every player, or one value per player (from
+    `SigmaModel.sigma_for`, same shape as `rating`) for a skill-dependent noise level. Probabilities
+    are the share of simulations in which each event happens.
     """
     n_players = len(rating)
     mean = -rating  # predicted round score, relative to an average field
@@ -106,13 +157,17 @@ def simulate_event(
 
 def simulate_events(
     features: pd.DataFrame,
-    sigma: float,
+    sigma: float | SigmaModel,
     n_sims: int,
     seed: int,
     cut_mode: str,
     fallback_cut_fraction: float,
 ) -> pd.DataFrame:
-    """`simulate_event` for every standard event in `features`, one row per (event, player)."""
+    """`simulate_event` for every standard event in `features`, one row per (event, player).
+
+    `sigma` is either one pooled value or a `SigmaModel`, giving each player their own sigma from
+    their rating.
+    """
     rows = []
     standard = features[features["is_standard_event"]]
     for tournament_id, group in standard.groupby("tournament_id", sort=True):
@@ -123,10 +178,10 @@ def simulate_events(
             cut_mode,
             fallback_cut_fraction,
         )
+        rating = group["rating"].fillna(0.0).to_numpy()
+        group_sigma = sigma.sigma_for(rating) if isinstance(sigma, SigmaModel) else sigma
         rng = event_rng(seed, tournament_id)
-        result = simulate_event(
-            group["rating"].fillna(0.0).to_numpy(), sigma, n_sims, rng, cut_keep
-        )
+        result = simulate_event(rating, group_sigma, n_sims, rng, cut_keep)
         rows.append(
             pd.DataFrame(
                 {

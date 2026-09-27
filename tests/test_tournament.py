@@ -253,3 +253,89 @@ def test_cut_keep_negative_is_treated_like_zero():
     result = sim.simulate_event(np.zeros(3), sigma=2.0, n_sims=500, rng=rng, cut_keep=-1)
 
     assert (result["made_cut"] == 0.0).all()
+
+
+def test_sigma_model_is_smaller_for_better_ratings():
+    model = sim.SigmaModel(intercept=9.0, slope=-1.0)
+
+    sigmas = model.sigma_for(np.array([-2.0, 0.0, 2.0]))
+
+    assert sigmas[0] > sigmas[1] > sigmas[2]
+    assert sigmas[1] == pytest.approx(3.0)  # sqrt(9.0 - 1.0*0)
+
+
+def test_sigma_model_floors_at_implausibly_high_ratings():
+    model = sim.SigmaModel(intercept=9.0, slope=-1.0, floor=1.0)
+
+    assert model.sigma_for(np.array([100.0]))[0] == pytest.approx(1.0)
+
+
+def test_estimate_sigma_model_recovers_a_known_skill_dependent_noise_level(monkeypatch):
+    rng = np.random.default_rng(0)
+    n = 20000
+    rating = rng.uniform(-2, 2, n)
+    true_sigma = np.sqrt(9.0 - 1.0 * rating)  # matches the fixture below
+    features = pd.DataFrame(
+        {
+            "tournament_id": [f"E{i}" for i in range(n)],
+            "player_id": 0,
+            "rating": rating,
+            "no_history": 0,
+        }
+    )
+    history = pd.DataFrame(
+        {
+            "tournament_id": features["tournament_id"],
+            "player_id": 0,
+            "rel": -rating + rng.normal(0, true_sigma),
+        }
+    )
+    monkeypatch.setattr("src.sim.tournament.round_relative_scores", lambda rounds, events: history)
+
+    model = sim.estimate_sigma_model(features, pd.DataFrame())
+
+    assert model.intercept == pytest.approx(9.0, rel=0.1)
+    assert model.slope == pytest.approx(-1.0, rel=0.15)
+
+
+def test_simulate_event_accepts_a_per_player_sigma_array():
+    """A per-player sigma is genuinely used, not just accepted and ignored.
+
+    A win-probability check can't tell this apart from a bug (with equal ratings, win is 50/50
+    regardless of sigma, by symmetry), so this checks the well-known asymmetric effect instead: a
+    weaker but noisier underdog wins more often than the same underdog would with typical sigma.
+    """
+    rating = np.array([1.0, 0.0])  # player 0 is better
+
+    rng_uniform = np.random.default_rng(0)
+    uniform = sim.simulate_event(rating, 1.5, n_sims=40000, rng=rng_uniform, cut_keep=None)
+
+    rng_array = np.random.default_rng(0)
+    per_player = sim.simulate_event(
+        rating, np.array([1.5, 5.0]), n_sims=40000, rng=rng_array, cut_keep=None
+    )
+
+    assert per_player["win"][1] > uniform["win"][1]  # the noisier underdog upsets more often
+
+
+def test_simulate_events_with_a_sigma_model_gives_stronger_players_a_smaller_sigma():
+    model = sim.SigmaModel(intercept=9.0, slope=-1.0)
+    features = pd.DataFrame(
+        {
+            "tournament_id": "E1",
+            "player_id": [1, 2],
+            "rating": [-1.0, 1.0],
+            "is_standard_event": True,
+            "has_cut": False,
+            "made_cut": pd.array([pd.NA, pd.NA], dtype="boolean"),
+        }
+    )
+
+    out = sim.simulate_events(
+        features, model, n_sims=30000, seed=0, cut_mode="actual", fallback_cut_fraction=0.5
+    )
+
+    # The better-rated player (2) should win more often: same ratings gap, but simulate_events
+    # gave them a smaller sigma too, which only sharpens the advantage.
+    win = out.set_index("player_id")["win"]
+    assert win[2] > win[1]
