@@ -3,25 +3,27 @@ published reports in `reports/`.
 
 Run with `uv run streamlit run src/dashboard/app.py`. Reads the same bundle the API serves through
 `src.api.serving` - no HTTP calls between the two, and neither ever re-fits a model at request
-time (see docs/DECISIONS.md). Research only; does not place bets.
+time. Research only; does not place bets.
 
-Scope (v1): a viewer over the already-published validation/holdout/forward-test reports, a
-per-event, per-player prediction browser across all four forecasts (Baseline 1, Model 1, Simulator,
-Naive), and a page explaining the backtest plan and why it isn't running yet. What this does *not*
-do, because the data does not support it yet: a market-vs-model panel (no public odds source; see
-docs/DECISIONS.md) and a raw simulated-outcome distribution (the exported bundle holds each
-player's simulated *probability*, not the underlying per-simulation draws) - both dropped rather
-than built as placeholders, per the same call made in `docs/PLAN.md`.
-
-Both pages lead with plain-language framing (a glossary, per-metric verdicts, a per-event "what
-actually happened" callout) before the underlying numbers, rather than a raw dump of report/export
-columns - the numbers alone don't say whether a difference is real or noise, or what "log loss"
+Three pages: model results, an event explorer, and the backtest plan (there is no market-vs-model
+panel or backtest equity curve - see that page for why). Each leads with plain-language framing (a
+glossary, per-metric verdicts, a per-event "what actually happened" callout) before the underlying
+numbers - the numbers alone don't say whether a difference is real or noise, or what "log loss"
 even means, so the page says it instead of leaving that to the reader.
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+
+# Streamlit runs this file as a script, not a module - CPython puts the script's own directory
+# (src/dashboard/) on sys.path[0], not the repo root, so the `src.*` imports below fail unless the
+# process happens to have the repo root on its path some other way (e.g. PYTHONPATH=. locally, or
+# `python -m streamlit`, which both mask this). Every other entry point avoids it by being run as
+# a module (`-m src...`) or, for uvicorn, by uvicorn itself inserting the cwd for a dotted app
+# string - this file is the one exception, since Streamlit takes a file path, not a module path.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import pandas as pd
 import streamlit as st
@@ -346,9 +348,7 @@ def backtest_plan_page() -> None:
         "PGA Tour odds are mostly sold through paid, licensed feeds, or published only as "
         "one-off web tables whose terms don't allow bulk reuse - not the kind of source this "
         "project would build a public backtest on. A small, licence-restricted set of "
-        "majors-only historical win odds was pulled for local spot-checking only; it stays off "
-        "this dashboard and out of the git history, since reusing licensed data beyond its "
-        "terms isn't something this project does, even informally or for a quick look. That "
+        "majors-only historical win odds was pulled for local spot-checking only. That "
         "spot-check suggested the model may be closer to market-competitive than to the naive "
         "baseline, but the sample (19 events) was far too small to call that a finding."
     )

@@ -1,0 +1,194 @@
+season,tournament_id,tournament_name,start_date,end_date,field_size,era
+2023,R2023002,The American Express,2023-01-19,2023-01-22,156,validation
+2023,R2023003,WM Phoenix Open,2023-02-09,2023-02-12,134,validation
+2023,R2023004,Farmers Insurance Open,2023-01-25,2023-01-28,156,validation
+2023,R2023005,AT&T Pebble Beach Pro-Am,2023-02-02,2023-02-05,156,validation
+2023,R2023006,Sony Open in Hawaii,2023-01-12,2023-01-15,144,validation
+2023,R2023007,The Genesis Invitational,2023-02-16,2023-02-19,129,validation
+2023,R2023009,Arnold Palmer Invitational presented by Mastercard,2023-03-02,2023-03-05,120,validation
+2023,R2023010,The Honda Classic,2023-02-23,2023-02-26,144,validation
+2023,R2023011,THE PLAYERS Championship,2023-03-09,2023-03-12,144,validation
+2023,R2023012,RBC Heritage,2023-04-13,2023-04-16,143,validation
+2023,R2023013,Wyndham Championship,2023-08-03,2023-08-06,156,validation
+2023,R2023014,Masters Tournament,2023-04-06,2023-04-09,88,validation
+2023,R2023016,Sentry Tournament of Champions,2023-01-05,2023-01-08,39,validation
+2023,R2023019,AT&T Byron Nelson,2023-05-11,2023-05-14,156,validation
+2023,R2023020,Cadence Bank Houston Open,2022-11-10,2022-11-13,132,validation
+2023,R2023021,Charles Schwab Challenge,2023-05-25,2023-05-28,120,validation
+2023,R2023023,the Memorial Tournament presented by Workday,2023-06-01,2023-06-04,120,validation
+2023,R2023026,U.S. Open,2023-06-15,2023-06-18,156,validation
+2023,R2023027,FedEx St. Jude Championship,2023-08-10,2023-08-13,70,validation
+2023,R2023028,BMW Championship,2023-08-17,2023-08-20,50,validation
+2023,R2023030,John Deere Classic,2023-07-06,2023-07-09,156,validation
+2023,R2023032,RBC Canadian Open,2023-06-08,2023-06-11,156,validation
+2023,R2023033,PGA Championship,2023-05-18,2023-05-21,156,validation
+2023,R2023034,Travelers Championship,2023-06-22,2023-06-25,156,validation
+2023,R2023041,Valero Texas Open,2023-03-30,2023-04-02,144,validation
+2023,R2023047,Shriners Children's Open,2022-10-06,2022-10-09,144,validation
+2023,R2023054,Sanderson Farms Championship,2022-09-29,2022-10-02,144,validation
+2023,R2023058,QBE Shootout,2022-12-09,2022-12-11,24,validation
+2023,R2023060,TOUR Championship,2023-08-24,2023-08-27,30,validation
+2023,R2023088,PGA TOUR Q-School presented by Korn Ferry,2023-12-14,2023-12-17,165,validation
+2023,R2023100,The Open Championship,2023-07-20,2023-07-23,156,validation
+2023,R2023457,World Wide Technology Championship,2022-11-03,2022-11-06,132,validation
+2023,R2023464,Fortinet Championship,2022-09-15,2022-09-18,156,validation
+2023,R2023470,World Golf Championships-Dell Technologies Match Play,2023-03-22,2023-03-26,64,validation
+2023,R2023472,Barracuda Championship,2023-07-20,2023-07-23,156,validation
+2023,R2023475,Valspar Championship,2023-03-16,2023-03-19,144,validation
+2023,R2023478,Hero World Challenge,2022-12-01,2022-12-04,20,validation
+2023,R2023480,Wells Fargo Championship,2023-05-04,2023-05-07,156,validation
+2023,R2023483,Puerto Rico Open,2023-03-02,2023-03-05,120,validation
+2023,R2023493,The RSM Classic,2022-11-17,2022-11-20,155,validation
+2023,R2023518,Barbasol Championship,2023-07-13,2023-07-16,156,validation
+2023,R2023521,THE CJ CUP in South Carolina,2022-10-20,2022-10-23,78,validation
+2023,R2023522,Corales Puntacana Championship,2023-03-23,2023-03-26,120,validation
+2023,R2023524,Rocket Mortgage Classic,2023-06-29,2023-07-02,156,validation
+2023,R2023525,3M Open,2023-07-27,2023-07-30,156,validation
+2023,R2023527,ZOZO CHAMPIONSHIP,2022-10-13,2022-10-16,78,validation
+2023,R2023528,Butterfield Bermuda Championship,2022-10-27,2022-10-30,132,validation
+2023,R2023540,Mexico Open at Vidanta,2023-04-27,2023-04-30,144,validation
+2023,R2023541,Genesis Scottish Open,2023-07-13,2023-07-16,156,validation
+2023,R2023543,Fortinet Championship,2023-09-14,2023-09-17,156,validation
+2023,R2023544,Sanderson Farms Championship,2023-10-05,2023-10-08,144,validation
+2023,R2023545,Shriners Children's Open,2023-10-12,2023-10-15,132,validation
+2023,R2023546,ZOZO CHAMPIONSHIP,2023-10-19,2023-10-22,78,validation
+2023,R2023547,World Wide Technology Championship,2023-11-02,2023-11-05,132,validation
+2023,R2023548,Butterfield Bermuda Championship,2023-11-09,2023-11-12,132,validation
+2023,R2023549,The RSM Classic,2023-11-16,2023-11-19,156,validation
+2023,R2023550,Hero World Challenge,2023-11-30,2023-12-03,20,validation
+2023,R2023551,Grant Thornton Invitational,2023-12-08,2023-12-10,32,validation
+2024,R2024002,The American Express,2024-01-18,2024-01-21,156,validation
+2024,R2024003,WM Phoenix Open,2024-02-08,2024-02-11,132,validation
+2024,R2024004,Farmers Insurance Open,2024-01-24,2024-01-27,156,validation
+2024,R2024005,AT&T Pebble Beach Pro-Am,2024-02-01,2024-02-04,80,validation
+2024,R2024006,Sony Open in Hawaii,2024-01-11,2024-01-14,144,validation
+2024,R2024007,The Genesis Invitational,2024-02-15,2024-02-18,70,validation
+2024,R2024009,Arnold Palmer Invitational presented by Mastercard,2024-03-07,2024-03-10,69,validation
+2024,R2024010,Cognizant Classic in The Palm Beaches,2024-02-29,2024-03-03,144,validation
+2024,R2024011,THE PLAYERS Championship,2024-03-14,2024-03-17,144,validation
+2024,R2024012,RBC Heritage,2024-04-18,2024-04-21,69,validation
+2024,R2024013,Wyndham Championship,2024-08-08,2024-08-11,156,validation
+2024,R2024014,Masters Tournament,2024-04-11,2024-04-14,89,validation
+2024,R2024016,The Sentry,2024-01-04,2024-01-07,59,validation
+2024,R2024019,THE CJ CUP Byron Nelson,2024-05-02,2024-05-05,156,validation
+2024,R2024020,Texas Children's Houston Open,2024-03-28,2024-03-31,144,validation
+2024,R2024021,Charles Schwab Challenge,2024-05-23,2024-05-26,132,validation
+2024,R2024023,the Memorial Tournament presented by Workday,2024-06-06,2024-06-09,73,validation
+2024,R2024026,U.S. Open,2024-06-13,2024-06-16,156,validation
+2024,R2024027,FedEx St. Jude Championship,2024-08-15,2024-08-18,70,validation
+2024,R2024028,BMW Championship,2024-08-22,2024-08-25,50,validation
+2024,R2024030,John Deere Classic,2024-07-04,2024-07-07,156,validation
+2024,R2024032,RBC Canadian Open,2024-05-30,2024-06-02,156,validation
+2024,R2024033,PGA Championship,2024-05-16,2024-05-19,156,validation
+2024,R2024034,Travelers Championship,2024-06-20,2024-06-23,71,validation
+2024,R2024041,Valero Texas Open,2024-04-04,2024-04-07,156,validation
+2024,R2024047,Shriners Children's Open,2024-10-17,2024-10-20,132,validation
+2024,R2024054,Sanderson Farms Championship,2024-10-03,2024-10-06,132,validation
+2024,R2024060,TOUR Championship,2024-08-29,2024-09-01,30,validation
+2024,R2024088,PGA TOUR Q-School presented by Korn Ferry,2024-12-12,2024-12-15,170,validation
+2024,R2024100,The Open Championship,2024-07-18,2024-07-21,157,validation
+2024,R2024457,World Wide Technology Championship,2024-11-07,2024-11-10,120,validation
+2024,R2024464,Procore Championship,2024-09-12,2024-09-15,144,validation
+2024,R2024472,Barracuda Championship,2024-07-18,2024-07-21,156,validation
+2024,R2024475,Valspar Championship,2024-03-21,2024-03-24,152,validation
+2024,R2024478,Hero World Challenge,2024-12-05,2024-12-08,20,validation
+2024,R2024480,Wells Fargo Championship,2024-05-09,2024-05-12,68,validation
+2024,R2024483,Puerto Rico Open,2024-03-07,2024-03-10,132,validation
+2024,R2024493,The RSM Classic,2024-11-21,2024-11-24,156,validation
+2024,R2024518,ISCO Championship,2024-07-11,2024-07-14,156,validation
+2024,R2024519,Men’s Olympic Golf Competition,2024-08-01,2024-08-04,60,validation
+2024,R2024522,Corales Puntacana Championship,2024-04-18,2024-04-21,132,validation
+2024,R2024524,Rocket Mortgage Classic,2024-06-27,2024-06-30,156,validation
+2024,R2024525,3M Open,2024-07-25,2024-07-28,156,validation
+2024,R2024527,ZOZO CHAMPIONSHIP,2024-10-24,2024-10-27,78,validation
+2024,R2024528,Butterfield Bermuda Championship,2024-11-14,2024-11-17,120,validation
+2024,R2024540,Mexico Open at Vidanta,2024-02-22,2024-02-25,132,validation
+2024,R2024541,Genesis Scottish Open,2024-07-11,2024-07-14,157,validation
+2024,R2024551,Grant Thornton Invitational,2024-12-13,2024-12-15,32,validation
+2024,R2024553,Myrtle Beach Classic,2024-05-09,2024-05-12,132,validation
+2024,R2024554,Black Desert Championship,2024-10-10,2024-10-13,132,validation
+2025,R2025002,The American Express,2025-01-16,2025-01-19,156,holdout
+2025,R2025003,WM Phoenix Open,2025-02-06,2025-02-09,132,holdout
+2025,R2025004,Farmers Insurance Open,2025-01-22,2025-01-25,155,holdout
+2025,R2025005,AT&T Pebble Beach Pro-Am,2025-01-30,2025-02-02,80,holdout
+2025,R2025006,Sony Open in Hawaii,2025-01-09,2025-01-12,143,holdout
+2025,R2025007,The Genesis Invitational,2025-02-13,2025-02-16,72,holdout
+2025,R2025009,Arnold Palmer Invitational presented by Mastercard,2025-03-06,2025-03-09,72,holdout
+2025,R2025010,Cognizant Classic in The Palm Beaches,2025-02-27,2025-03-02,144,holdout
+2025,R2025011,THE PLAYERS Championship,2025-03-13,2025-03-16,144,holdout
+2025,R2025012,RBC Heritage,2025-04-17,2025-04-20,72,holdout
+2025,R2025013,Wyndham Championship,2025-07-31,2025-08-03,156,holdout
+2025,R2025014,Masters Tournament,2025-04-10,2025-04-13,95,holdout
+2025,R2025016,The Sentry,2025-01-02,2025-01-05,59,holdout
+2025,R2025019,THE CJ CUP Byron Nelson,2025-05-01,2025-05-04,156,holdout
+2025,R2025020,Texas Children's Houston Open,2025-03-27,2025-03-30,153,holdout
+2025,R2025021,Charles Schwab Challenge,2025-05-22,2025-05-25,135,holdout
+2025,R2025023,the Memorial Tournament presented by Workday,2025-05-29,2025-06-01,72,holdout
+2025,R2025026,U.S. Open,2025-06-12,2025-06-15,156,holdout
+2025,R2025027,FedEx St. Jude Championship,2025-08-07,2025-08-10,69,holdout
+2025,R2025028,BMW Championship,2025-08-14,2025-08-17,49,holdout
+2025,R2025030,John Deere Classic,2025-07-03,2025-07-06,156,holdout
+2025,R2025032,RBC Canadian Open,2025-06-05,2025-06-08,156,holdout
+2025,R2025033,PGA Championship,2025-05-15,2025-05-18,156,holdout
+2025,R2025034,Travelers Championship,2025-06-19,2025-06-22,72,holdout
+2025,R2025041,Valero Texas Open,2025-04-03,2025-04-06,144,holdout
+2025,R2025054,Sanderson Farms Championship,2025-10-02,2025-10-05,132,holdout
+2025,R2025060,TOUR Championship,2025-08-21,2025-08-24,30,holdout
+2025,R2025088,PGA TOUR Q-School presented by Korn Ferry,2025-12-11,2025-12-14,174,holdout
+2025,R2025100,The Open Championship,2025-07-17,2025-07-20,156,holdout
+2025,R2025457,World Wide Technology Championship,2025-11-06,2025-11-09,120,holdout
+2025,R2025464,Procore Championship,2025-09-11,2025-09-14,144,holdout
+2025,R2025472,Barracuda Championship,2025-07-17,2025-07-20,156,holdout
+2025,R2025475,Valspar Championship,2025-03-20,2025-03-23,154,holdout
+2025,R2025478,Hero World Challenge,2025-12-04,2025-12-07,20,holdout
+2025,R2025480,Truist Championship,2025-05-08,2025-05-11,72,holdout
+2025,R2025483,Puerto Rico Open,2025-03-06,2025-03-09,132,holdout
+2025,R2025493,The RSM Classic,2025-11-20,2025-11-23,156,holdout
+2025,R2025518,ISCO Championship,2025-07-10,2025-07-13,156,holdout
+2025,R2025522,Corales Puntacana Championship,2025-04-17,2025-04-20,132,holdout
+2025,R2025524,Rocket Classic,2025-06-26,2025-06-29,156,holdout
+2025,R2025525,3M Open,2025-07-24,2025-07-27,156,holdout
+2025,R2025527,Baycurrent Classic,2025-10-09,2025-10-12,78,holdout
+2025,R2025528,Butterfield Bermuda Championship,2025-11-13,2025-11-16,120,holdout
+2025,R2025540,Mexico Open at VidantaWorld,2025-02-20,2025-02-23,132,holdout
+2025,R2025541,Genesis Scottish Open,2025-07-10,2025-07-13,156,holdout
+2025,R2025551,Grant Thornton Invitational,2025-12-12,2025-12-14,32,holdout
+2025,R2025553,ONEflight Myrtle Beach Classic,2025-05-08,2025-05-11,132,holdout
+2025,R2025554,Bank of Utah Championship,2025-10-23,2025-10-26,132,holdout
+2026,R2026002,The American Express,2026-01-22,2026-01-25,156,forward_test
+2026,R2026003,WM Phoenix Open,2026-02-05,2026-02-08,123,forward_test
+2026,R2026004,Farmers Insurance Open,2026-01-29,2026-02-01,147,forward_test
+2026,R2026005,AT&T Pebble Beach Pro-Am,2026-02-12,2026-02-15,80,forward_test
+2026,R2026006,Sony Open in Hawaii,2026-01-15,2026-01-18,120,forward_test
+2026,R2026007,The Genesis Invitational,2026-02-19,2026-02-22,72,forward_test
+2026,R2026009,Arnold Palmer Invitational presented by Mastercard,2026-03-05,2026-03-08,72,forward_test
+2026,R2026010,Cognizant Classic in The Palm Beaches,2026-02-26,2026-03-01,123,forward_test
+2026,R2026011,THE PLAYERS Championship,2026-03-12,2026-03-15,123,forward_test
+2026,R2026012,RBC Heritage,2026-04-16,2026-04-19,82,forward_test
+2026,R2026013,Wyndham Championship,2026-08-06,2026-08-09,147,forward_test
+2026,R2026014,Masters Tournament,2026-04-09,2026-04-12,91,forward_test
+2026,R2026019,THE CJ CUP Byron Nelson,2026-05-21,2026-05-24,147,forward_test
+2026,R2026020,Texas Children's Houston Open,2026-03-26,2026-03-29,135,forward_test
+2026,R2026021,Charles Schwab Challenge,2026-05-28,2026-05-31,132,forward_test
+2026,R2026023,the Memorial Tournament presented by Workday,2026-06-04,2026-06-07,72,forward_test
+2026,R2026026,U.S. Open,2026-06-18,2026-06-21,156,forward_test
+2026,R2026027,FedEx St. Jude Championship,2026-08-13,2026-08-16,69,forward_test
+2026,R2026028,BMW Championship,2026-08-20,2026-08-23,50,forward_test
+2026,R2026030,John Deere Classic,2026-07-02,2026-07-05,144,forward_test
+2026,R2026032,RBC Canadian Open,2026-06-11,2026-06-14,147,forward_test
+2026,R2026033,PGA Championship,2026-05-14,2026-05-17,156,forward_test
+2026,R2026034,Travelers Championship,2026-06-25,2026-06-28,72,forward_test
+2026,R2026041,Valero Texas Open,2026-04-02,2026-04-05,132,forward_test
+2026,R2026060,TOUR Championship,2026-08-27,2026-08-30,30,forward_test
+2026,R2026100,The Open Championship,2026-07-16,2026-07-19,156,forward_test
+2026,R2026475,Valspar Championship,2026-03-19,2026-03-22,135,forward_test
+2026,R2026480,Truist Championship,2026-05-07,2026-05-10,72,forward_test
+2026,R2026483,Puerto Rico Open,2026-03-05,2026-03-08,120,forward_test
+2026,R2026518,ISCO Championship,2026-07-09,2026-07-12,144,forward_test
+2026,R2026522,Corales Puntacana Championship,2026-07-16,2026-07-19,144,forward_test
+2026,R2026524,Rocket Classic,2026-07-30,2026-08-02,147,forward_test
+2026,R2026525,3M Open,2026-07-23,2026-07-26,144,forward_test
+2026,R2026541,Genesis Scottish Open,2026-07-09,2026-07-12,156,forward_test
+2026,R2026553,ONEflight Myrtle Beach Classic,2026-05-07,2026-05-10,123,forward_test
+2026,R2026556,Cadillac Championship,2026-04-30,2026-05-03,72,forward_test
+2026,R2026557,Biltmore Championship Asheville,2026-09-17,2026-09-20,132,forward_test

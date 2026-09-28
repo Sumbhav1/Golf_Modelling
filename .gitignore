@@ -1,5 +1,14 @@
-# Data is never committed (raw data may be licensed; see docs/DATA_SOURCES.md)
-data/
+# Data is never committed (raw data may be licensed; see docs/DATA_SOURCES.md).
+# Exception: the exported, derived prediction bundle the API and dashboard serve - not raw or
+# licensed data (see src/models/export_predictions.py), and committed so Streamlit Community
+# Cloud has something to serve on a fresh clone (see docs/DECISIONS.md). A "dir/" pattern makes
+# git skip the directory entirely, so nested "!" exceptions below it are silently ignored - these
+# use "dir/*" wildcards instead, which git still descends into.
+data/*
+!data/processed/
+data/processed/*
+!data/processed/served_events.csv
+!data/processed/served_predictions.csv
 
 # Python
 .venv/

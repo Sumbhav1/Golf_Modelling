@@ -1,12 +1,14 @@
-"""Builds one combined per-player prediction table for the API and dashboard (Phase 4).
+"""Builds one combined per-player prediction table for the API and dashboard.
 
 Run with `uv run python -m src.models.export_predictions`. Reuses exactly the settings and
 refitting each report already uses (validation: `run_model1`; holdout: `run_holdout`, the frozen
 one-look; forward test: `run_forward_test`, re-run as the season progresses) - this recomputes the
 same numbers those reports show rather than taking any new look at anything frozen. Output is
-written to `data/processed/` (gitignored, regenerable from source data + config, like every other
-file under `data/`), not `reports/` (which holds the public per-model write-ups, not a bulk
-per-player export). Regenerate whenever the input data, a model setting, or a 2026 result changes.
+written to `data/processed/`, not `reports/` (which holds the public per-model write-ups, not a
+bulk per-player export). Unlike everything else under `data/`, these two files ARE committed (see
+`.gitignore`): they're derived model output, not raw or licensed data, and Streamlit Community
+Cloud's clone needs something to serve. Regenerate and commit again whenever the input data, a
+model setting, or a 2026 result changes.
 """
 
 from __future__ import annotations

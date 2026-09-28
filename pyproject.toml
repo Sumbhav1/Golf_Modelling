@@ -19,7 +19,19 @@ dependencies = [
 dev = [
     "pytest",
     "ruff",
+    # fastapi's TestClient (tests/test_api.py) delegates to starlette.testclient, which now
+    # requires httpx2 specifically (a plain "httpx" install only warns, then newer starlette
+    # releases hard-require it) - not a runtime dependency, only needed to run the tests.
+    "httpx2",
 ]
+
+# Streamlit Community Cloud installs dependencies with Poetry, which otherwise tries to install
+# this project itself as a package (there is no top-level golf_pricing_engine/ for it to find -
+# the code lives in src/<area>/ and is never installed, only run with the repo root on the path;
+# see [tool.pytest.ini_options] below and docs/DECISIONS.md, "Repo layout and tooling"). This is
+# inert to uv and pip, which only read [project].
+[tool.poetry]
+package-mode = false
 
 [tool.pytest.ini_options]
 # The code lives in src/<area>/ and is imported as `src.<area>`.
