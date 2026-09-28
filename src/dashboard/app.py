@@ -330,17 +330,29 @@ def backtest_plan_page() -> None:
 
     st.markdown("#### What a real backtest here would have to report")
     st.markdown(
-        "- Only odds available **before** the event started, with opening vs closing lines "
-        "labelled separately - never a line that came out after the fact.\n"
-        "- The bookmaker's margin (the vig) included, not ignored.\n"
-        "- Realistic costs: stake caps, a minimum-odds floor, and a **fractional**-Kelly stake "
-        "cap - never full Kelly, which is far too aggressive for a model this uncertain.\n"
-        "- Number of bets, ROI, hit rate, the Sharpe ratio of per-event returns, max drawdown, "
-        "and bootstrap confidence intervals over events, not rows.\n"
-        "- A **random-strategy control** that should lose roughly the vig - if it doesn't, "
-        "something is wrong with the backtest itself, not the model.\n"
-        '- "No reliable edge after costs" reported as a real, valid answer if that\'s what the '
-        "numbers say, not hidden or explained away."
+        "Every bet is priced using only the odds that existed before that tournament started - "
+        "opening and closing lines are tracked and reported separately, so nothing from later in "
+        "the week leaks into a prediction made beforehand.\n\n"
+        "Bookmaker odds always include a margin for the house, so before comparing the model's "
+        "view to the market's, that margin is stripped out mathematically to reveal what the "
+        "market actually believes about each player's chances. A bet is only placed where the "
+        "model's probability meaningfully exceeds that fair market probability - and that "
+        "threshold is set using a separate slice of historical data, never the results being "
+        "tested.\n\n"
+        "Stakes are sized conservatively: capped per bet, with a floor on how short the odds can "
+        'be, and calculated using a fraction of the theoretically "optimal" Kelly stake rather '
+        "than the full amount, since no probability estimate is perfectly certain.\n\n"
+        "The results are reported as a full picture rather than a single number: total return, "
+        "win rate, risk-adjusted return (Sharpe), the worst losing streak the strategy would have "
+        "lived through, and a confidence range built by resampling entire tournaments at a time, "
+        "since bets placed in the same week aren't independent of each other.\n\n"
+        "As a check on the process itself, the exact same pipeline is also run with random picks "
+        "in place of the model's predictions. A random strategy has no edge, so it should lose "
+        "close to what the house margin would predict - if it doesn't, that reveals a flaw in the "
+        "backtest, not evidence of skill.\n\n"
+        "Whatever the model's real result is, it's reported honestly. If the conclusion is that "
+        "no reliable edge survives once costs are accounted for, that's the result - not "
+        "something to adjust away."
     )
 
     st.markdown("#### Why it's blocked")
