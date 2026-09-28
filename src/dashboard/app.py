@@ -348,11 +348,7 @@ def backtest_plan_page() -> None:
         "since bets placed in the same week aren't independent of each other.\n\n"
         "As a check on the process itself, the exact same pipeline is also run with random picks "
         "in place of the model's predictions. A random strategy has no edge, so it should lose "
-        "close to what the house margin would predict - if it doesn't, that reveals a flaw in the "
-        "backtest, not evidence of skill.\n\n"
-        "Whatever the model's real result is, it's reported honestly. If the conclusion is that "
-        "no reliable edge survives once costs are accounted for, that's the result - not "
-        "something to adjust away."
+        "close to what the house margin would predict."
     )
 
     st.markdown("#### Why it's blocked")
